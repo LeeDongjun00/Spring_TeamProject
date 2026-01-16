@@ -28,6 +28,7 @@
             border-collapse: collapse;
             padding: 5px 10px;
             text-align: center;
+            font-size: 15px;
         }
         th {
             background-color: beige;
@@ -67,6 +68,7 @@
 </html>
 
 <script>
+    window.currentVueApp = null;
     // 페이지 로딩 함수
     function loadPage(type) {
         const urlMap = {
@@ -81,8 +83,44 @@
             return;
         }
 
+        // 1. 기존 앱이 있다면 언마운트
+        if (window.currentVueApp) {
+            window.currentVueApp.unmount();
+            window.currentVueApp = null;
+            console.log("이전 앱 언마운트 완료");
+        }
+
+        // unmountAllVueApps();
+        // fnTest();
+
         $('#adminContent').load(urlMap[type]);
     }
+
+    // function unmountAllVueApps() {
+    //     if (window.dashboardApp) {
+    //         window.dashboardApp.unmount();
+    //         // window.dashboardApp = null;
+    //     }
+    //     if (window.reportApp) {
+    //         window.reportApp.unmount();
+    //         // window.reportApp = null;
+    //     }
+    //     if (window.inquiryApp) {
+    //         window.inquiryApp.unmount();
+    //         // window.inquiryApp = null;
+    //     }
+    //     if (window.userManageApp) {
+    //         window.userManageApp.unmount();
+    //         // window.userManageApp = null;
+    //     }
+    // }
+
+    // function fnTest() {
+    //     console.log(window.dashboardApp);
+    //     console.log(window.reportApp);
+    //     console.log(window.inquiryApp);
+    //     console.log(window.userManageApp);
+    // }
 
     // 최초 진입 시 대시보드 로드
     $(document).ready(function () {
