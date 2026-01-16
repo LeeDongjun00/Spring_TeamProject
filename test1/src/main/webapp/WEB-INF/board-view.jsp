@@ -301,7 +301,8 @@
       <div class="crumb">커뮤니티 <span class="dot"></span> 게시글</div>
       <div class="title">{{ info.title }}</div>
       <div class="meta">
-  <span>작성자 {{ info.userId }}</span>
+  <span v-if="info.nickname != null">작성자 {{ info.userId }}</span>
+  <span v-else>작성자 탈퇴한 사용자</span>
   <span class="dot"></span>
   <span>조회수 {{ info.cnt }}</span>
   <span class="dot"></span>
@@ -328,7 +329,10 @@
         </tr>
         <tr>
           <th>작성자</th>
-          <td>{{ info.nickname }}</td>
+          <td>
+            <span v-if="info.nickname != null">{{ info.nickname }}</span>
+            <span v-else>탈퇴한 사용자</span>
+          </td>
         </tr>
         <tr>
           <th>조회수</th>
@@ -356,12 +360,15 @@
             <img v-else src="/img/profile/default_profile.jpg" alt="" class="profileImg">
           </td>
           <td class="writer">
-            {{ item.userNick }}
-            <span>
-              <span v-if="item.status == 'U'">🙂</span>
-              <span v-else-if="item.status == 'S'">✨</span>
-              <span v-else-if="item.status == 'A'">👑</span>
-              <span v-else>❓</span>
+            <span v-if="item.userNick == null || deletedYn == 'Y'">탈퇴한 사용자</span>
+            <span v-else>
+              {{ item.userNick }}
+              <span>
+                <span v-if="item.status == 'U'">🙂</span>
+                <span v-else-if="item.status == 'S'">✨</span>
+                <span v-else-if="item.status == 'A'">👑</span>
+                <span v-else>❓</span>
+              </span>
             </span>
           </td>
 
@@ -507,7 +514,7 @@
           dataType: "json",
           data: { boardNo: self.boardNo, userId: self.userId },
           success(data){
-            // console.log(data);
+            console.log(data);
             self.info = data.info;
             self.commentList = data.commentList.map(c => ({ ...c, reported: c.reported === true }));
             self.commentReportMap = {};

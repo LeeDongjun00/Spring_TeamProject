@@ -89,7 +89,8 @@
 	        R.BOARDNO,
 	        R.COMMENTNO,
 	        U.NICKNAME AS REPORTED_NICKNAME,  -- ✅ 유저 닉네임 추가
-	        U.STATUS AS REPORTED_STATUS       -- ✅ 유저 상태 추가 (선택)
+	        U.STATUS AS REPORTED_STATUS,      -- ✅ 유저 상태 추가 (선택)
+	        R.REPORT_USER_ID
 	    FROM REPORT R
 	    LEFT JOIN USERS U ON R.REPORTED_USER_ID = U.USER_ID
 	    ORDER BY R.REPORTNUM DESC

@@ -31,4 +31,6 @@ public class Board {
 	private int price;
 	private String Iduser;
 	private String packname;
+	
+	private String deletedYn;
 }

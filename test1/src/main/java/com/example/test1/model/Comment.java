@@ -19,4 +19,6 @@ public class Comment {
 	private String storUrl;
 	
 	private String status;
+	
+	private String deletedYn;
 }
