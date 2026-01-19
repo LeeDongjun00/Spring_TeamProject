@@ -198,7 +198,7 @@
       }
 
       /* ================================
-         좌측: 지역 탭 + 대표 이미지(빈칸)
+         좌측: 지역 탭 + 대표 이미지(랜덤 관광지)
       ================================ */
       .left-card {
         background: var(--card);
@@ -261,31 +261,6 @@
         font-size: 0.82rem;
         color: var(--muted);
         line-height: 1.35;
-      }
-
-      .selected-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 10px;
-        border-radius: 999px;
-        background: #f8fafc;
-        border: 1px solid rgba(0, 0, 0, 0.06);
-        color: #111;
-        font-weight: 900;
-        font-size: 0.85rem;
-        white-space: nowrap;
-        max-width: 160px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .selected-pill .dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 999px;
-        background: linear-gradient(180deg, var(--sky-500), var(--sky-600));
-        box-shadow: 0 8px 18px rgba(2, 132, 199, 0.25);
       }
 
       .region-grid {
@@ -391,6 +366,19 @@
         position: relative;
       }
 
+      /* ✅ 랜덤 관광지 이미지가 있으면 꽉 채우기 */
+      .spot-card .spot-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+        filter: saturate(1.02) contrast(1.02);
+        transform: scale(1.01);
+      }
+
       .spot-card .img-placeholder {
         width: 100%;
         height: 100%;
@@ -405,6 +393,10 @@
       }
 
       .spot-card .spot-meta {
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        bottom: 14px;
         background: rgba(255, 255, 255, 0.7);
         border: 1px solid rgba(0, 0, 0, 0.06);
         border-radius: 12px;
@@ -430,10 +422,6 @@
 
       /* ================================
          ✅ 우측: 카카오 지도 (여백/붕뜸 제거 최종)
-         핵심:
-         1) .right-card는 position:relative + padding 0 강제
-         2) .map_wrap, #map을 absolute + inset:0 으로 강제
-         3) #map에 border-radius 주고 싶으면 "wrapper"에만 주기 (중복 radius로 틈 생길 수 있어 wrapper에만)
       ================================ */
       .right-card {
         background: var(--card);
@@ -458,17 +446,13 @@
         height: 100% !important;
         padding: 0 !important;
         margin: 0 !important;
-
-        /* ✅ 혹시 global flex 정렬 걸려있을 때 방어 */
         display: block !important;
         align-items: stretch !important;
         justify-content: stretch !important;
 
         background: linear-gradient(180deg, #eaf4ff 0%, #f6f9ff 100%);
         overflow: hidden;
-        /* ✅ radius는 여기서 처리 */
         border-radius: 16px;
-        /* ✅ radius는 wrapper에만 */
       }
 
       #map {
@@ -478,8 +462,6 @@
         height: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
-
-        /* ✅ #map에는 radius 주지 마세요(가끔 타일 렌더링과 겹치며 '틈'처럼 보임) */
         border-radius: 0 !important;
       }
 
@@ -567,19 +549,16 @@
         padding: 10px;
         border-radius: 18px;
 
-        /* glass */
         background: rgba(255, 255, 255, 0.72);
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
 
-        /* gradient border 느낌 */
         border: 1px solid rgba(255, 255, 255, 0.55);
         box-shadow:
           0 18px 40px rgba(0, 0, 0, 0.12),
           inset 0 1px 0 rgba(255, 255, 255, 0.65);
       }
 
-      /* 세그먼트형 필드 */
       .map-bottom-field {
         flex: 1;
         min-width: 0;
@@ -602,7 +581,6 @@
           transform 0.15s ease;
       }
 
-      /* focus가 들어오면 “링” 강조 */
       .map-bottom-field:focus-within {
         border-color: rgba(14, 165, 233, 0.35);
         box-shadow:
@@ -624,7 +602,6 @@
         gap: 6px;
       }
 
-      /* 라벨 앞 작은 아이콘 느낌 */
       .map-bottom-field .label::before {
         content: "";
         width: 18px;
@@ -635,7 +612,6 @@
         box-shadow: 0 10px 18px rgba(2, 132, 199, 0.1);
       }
 
-      /* input은 더 미니멀하게 */
       .map-bottom-field input {
         width: 100%;
         border: none;
@@ -651,7 +627,6 @@
         font-weight: 700;
       }
 
-      /* 버튼: 더 “버튼답게” */
       .btn-start-trip {
         flex: 0 0 auto;
         height: 46px;
@@ -691,9 +666,7 @@
       }
 
       /* ================================
-         - 요구: images 경로 고정
-         - 요구: 3장(region_1,2,3) / 화살표 좌우 / 루프(A) + 오토플레이(C)
-         - 요구: 한 번에 2장씩 노출
+         아래 패널
       ================================ */
       .below-panels {
         margin-top: 18px;
@@ -715,21 +688,13 @@
         }
       }
 
-      /* ================================
-   프리미엄 광고 카드 (이미지 꽉 채우기)
-================================ */
       .premium-ad-card {
         position: relative;
         height: 190px;
-        /* 원하는 높이 (필요시 조절) */
         background: transparent;
-        /* 배경 제거 */
         border: 4.5px solid #22c55e;
-        /* 테두리 제거 */
         border-radius: 0;
-        /* 카드 느낌 제거 */
         box-shadow: none;
-        /* 그림자 제거 */
         overflow: hidden;
         border-radius: 16px;
       }
@@ -741,13 +706,9 @@
         height: 100%;
         display: block;
         object-fit: cover;
-        /* ✅ 비율 유지 + 가득 채우기 */
         object-position: center;
       }
 
-      /* ================================
-   추천 여행지 카드 (박스 완전 제거)
-================================ */
       .region-carousel-card {
         background: transparent !important;
         border: none !important;
@@ -786,12 +747,6 @@
         margin: 0;
         font-size: 1.05rem;
         letter-spacing: -0.2px;
-      }
-
-      .region-carousel-head p {
-        margin: 3px 0 0;
-        font-size: 0.82rem;
-        color: var(--muted);
       }
 
       .region-carousel-title {
@@ -1188,7 +1143,7 @@
 
         <!-- ✅ 메인 2컬럼 -->
         <div class="main-panels">
-          <!-- ✅ 좌측: 지역 탭 + 대표명소(빈 이미지 자리) -->
+          <!-- ✅ 좌측: 지역 탭 + 대표명소(랜덤 관광지 이미지) -->
           <aside class="left-card">
             <div class="region-top">
               <div class="region-title">
@@ -1196,7 +1151,7 @@
                   <div class="badge"><i class="fa-solid fa-location-dot"></i></div>
                   <div>
                     <h3>어디로 가볼까요</h3>
-                    <p>지역을 선택하면 우측 지도가 랜덤 장소로 이동합니다</p>
+                    <p>지역을 선택하면 우측 지도가 랜덤 장소로 이동하고, 좌측에 랜덤 관광지 사진이 뜹니다</p>
                   </div>
                 </div>
               </div>
@@ -1279,12 +1234,17 @@
               </div>
             </div>
 
+            <!-- ✅ 랜덤 관광지 카드 -->
             <div class="spot-card">
-              <div class="img-placeholder">
-                <div class="spot-meta">
-                  <p class="name">{{ spotTitle }}</p>
-                  <p class="desc">※ 이미지 자리(추후 해당 지역 대표 명소 사진으로 교체)</p>
-                </div>
+              <!-- 이미지가 있으면 이미지, 없으면 placeholder -->
+              <img v-if="spotImageUrl" class="spot-img" :src="spotImageUrl" :alt="spotTitle" />
+              <div v-else class="img-placeholder"></div>
+
+              <div class="spot-meta">
+                <p class="name">{{ spotTitle }}</p>
+                <p class="desc">
+                  {{ spotDesc }}
+                </p>
               </div>
             </div>
           </aside>
@@ -1307,10 +1267,12 @@
               <div class="map-bottom-bar">
                 <div class="map-bottom-field">
                   <span class="label">인원수</span>
-                  <input type="number" min="1" v-model.number="headCount" placeholder="예: 2" />
+                  <!-- ✅ 초기값 0 / min도 0으로 -->
+                  <input type="number" min="0" v-model.number="headCount" placeholder="예: 2" />
                 </div>
                 <div class="map-bottom-field">
                   <span class="label">예산</span>
+                  <!-- ✅ 초기값 0 -->
                   <input type="number" min="0" v-model.number="budget" placeholder="예: 300000" />
                 </div>
                 <button type="button" class="btn-start-trip" @click="fnStartTrip">여행하기</button>
@@ -1357,6 +1319,21 @@
                 </div>
                 <div class="swiper-slide">
                   <img src="/images/region_3.png" alt="region_3" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="/images/region_4.png" alt="region_1" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="/images/region_5.png" alt="region_2" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="/images/region_6.png" alt="region_3" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="/images/region_7.png" alt="region_1" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="/images/region_8.png" alt="region_2" />
                 </div>
               </div>
             </div>
@@ -1478,8 +1455,9 @@
               "/img/defaultImg06.jpg",
             ],
 
-            headCount: 2,
-            budget: 300000,
+            /* ✅ 요구사항: 초기값 0 */
+            headCount: 0,
+            budget: 0,
 
             topBannerSwiper: null,
             reviewSwiper: null,
@@ -1489,20 +1467,38 @@
 
             selectedRegionKey: "",
             selectedRegionName: "",
+
+            /* ✅ 좌측 랜덤 관광지 표시용 */
             spotTitle: "지역을 선택해 주세요",
+            spotDesc: "※ 지역을 선택하면 관광지 사진이 랜덤으로 표시됩니다",
+            spotImageUrl: "",
 
+            /* ✅ 지역키 -> (지도 이동용 + Tour API areaCode 매핑용) */
             REGION: {
-              seoul: { name: "서울특별시", lat: 37.5665, lng: 126.978, jitter: 0.05, spot: "서울 대표 명소" },
-              gyeonggi: { name: "경기도", lat: 37.4138, lng: 127.5183, jitter: 0.12, spot: "경기 대표 명소" },
-              incheon: { name: "인천광역시", lat: 37.4563, lng: 126.7052, jitter: 0.08, spot: "인천 대표 명소" },
+              seoul:   { name: "서울특별시",   lat: 37.5665, lng: 126.978,  jitter: 0.05, spot: "서울 랜덤 관광지" },
+              gyeonggi:{ name: "경기도",       lat: 37.4138, lng: 127.5183, jitter: 0.12, spot: "경기 랜덤 관광지" },
+              incheon: { name: "인천광역시",   lat: 37.4563, lng: 126.7052, jitter: 0.08, spot: "인천 랜덤 관광지" },
 
-              gangwon: { name: "강원특별자치도", lat: 37.8228, lng: 128.1555, jitter: 0.16, spot: "강원 대표 명소" },
-              chungnam: { name: "충청남도", lat: 36.6588, lng: 126.6728, jitter: 0.14, spot: "충남 대표 명소" },
-              jeonbuk: { name: "전북특별자치도", lat: 35.7175, lng: 127.153, jitter: 0.14, spot: "전북 대표 명소" },
+              gangwon: { name: "강원특별자치도", lat: 37.8228, lng: 128.1555, jitter: 0.16, spot: "강원 랜덤 관광지" },
+              chungnam:{ name: "충청남도",     lat: 36.6588, lng: 126.6728, jitter: 0.14, spot: "충남 랜덤 관광지" },
+              jeonbuk: { name: "전북특별자치도", lat: 35.7175, lng: 127.153,  jitter: 0.14, spot: "전북 랜덤 관광지" },
 
-              daegu: { name: "대구광역시", lat: 35.8714, lng: 128.6014, jitter: 0.07, spot: "대구 대표 명소" },
-              busan: { name: "부산광역시", lat: 35.1796, lng: 129.0756, jitter: 0.08, spot: "부산 대표 명소" },
-              jeju: { name: "제주특별자치도", lat: 33.4996, lng: 126.5312, jitter: 0.12, spot: "제주 대표 명소" },
+              daegu:   { name: "대구광역시",   lat: 35.8714, lng: 128.6014, jitter: 0.07, spot: "대구 랜덤 관광지" },
+              busan:   { name: "부산광역시",   lat: 35.1796, lng: 129.0756, jitter: 0.08, spot: "부산 랜덤 관광지" },
+              jeju:    { name: "제주특별자치도", lat: 33.4996, lng: 126.5312, jitter: 0.12, spot: "제주 랜덤 관광지" },
+            },
+
+            /* ✅ Tour API 지역코드(백엔드 호출 파라미터로 사용) */
+            AREA_CODE: {
+              seoul: 1,
+              incheon: 2,
+              daegu: 4,
+              busan: 6,
+              gyeonggi: 31,
+              gangwon: 32,
+              chungnam: 34,
+              jeonbuk: 37,
+              jeju: 39,
             },
           };
         },
@@ -1517,13 +1513,11 @@
             self.$nextTick(() => {
               self.initTopBannerSwiper();
               self.initSwiper();
-
-              /* ✅ (추가) 추천 여행지 둘러보기 Swiper 초기화 */
               self.initRegionSwiper();
             });
           },
 
-          /* ✅ 지도 생성 + relayout 강제 (붕 뜨는 문제 해결: 최종 방어 버전) */
+          /* ✅ 지도 생성 + relayout 강제 */
           initMap() {
             const self = this;
             const mapContainer = document.getElementById("map");
@@ -1532,7 +1526,6 @@
             self.map = new kakao.maps.Map(mapContainer, { center, level: 7 });
             self.marker = new kakao.maps.Marker({ position: center, map: self.map });
 
-            // ✅ 0) 화면 레이아웃이 진짜 잡힌 다음에 relayout (2번)
             requestAnimationFrame(() => {
               if (!self.map) return;
               self.map.relayout();
@@ -1545,14 +1538,12 @@
               if (self.marker) self.map.setCenter(self.marker.getPosition());
             }, 220);
 
-            // ✅ 1) 브라우저 리사이즈
             window.addEventListener("resize", () => {
               if (!self.map) return;
               self.map.relayout();
               if (self.marker) self.map.setCenter(self.marker.getPosition());
             });
 
-            // ✅ 2) 폰트 로딩(구글폰트가 늦게 적용되며 레이아웃 바뀌는 경우)
             if (document.fonts && document.fonts.ready) {
               document.fonts.ready.then(() => {
                 if (!self.map) return;
@@ -1562,6 +1553,7 @@
             }
           },
 
+          /* ✅ (핵심) 지역 선택 시: 지도 랜덤이동 + 랜덤 관광지 이미지 갱신 */
           fnSelectRegion(key) {
             const self = this;
             const info = self.REGION[key];
@@ -1569,9 +1561,15 @@
 
             self.selectedRegionKey = key;
             self.selectedRegionName = info.name;
-            self.spotTitle = info.spot;
 
+            // 기본 텍스트 먼저 세팅
+            self.spotTitle = info.spot;
+            self.spotDesc = "관광지 정보를 불러오는 중입니다...";
+            self.spotImageUrl = "";
+
+            // 지도 이동 + 랜덤 관광지 호출
             self.fnRandomMove();
+            self.fnFetchRandomSpot();
           },
 
           fnSelectRegionByRandom() {
@@ -1603,11 +1601,57 @@
 
             if (self.marker) self.marker.setPosition(target);
 
-            // ✅ 이동 직후에도 relayout 1회 (처음 선택 시 특히)
             requestAnimationFrame(() => {
               if (!self.map) return;
               self.map.relayout();
               if (self.marker) self.map.setCenter(self.marker.getPosition());
+            });
+
+            // ✅ "다른 장소 추천" 눌렀을 때도 사진도 같이 바뀌게(원하시면 유지로 바꿔드릴게요)
+            self.fnFetchRandomSpot();
+          },
+
+          /* ✅ (핵심) 백엔드로 지역코드 전달 → TourAPI에서 랜덤 관광지 1개 뽑아서 이미지/제목 반환 */
+          fnFetchRandomSpot() {
+            const self = this;
+            if (!self.selectedRegionKey) return;
+
+            const areaCode = self.AREA_CODE[self.selectedRegionKey] || "";
+
+            // areaCode가 없으면 fallback
+            if (!areaCode) {
+              self.spotTitle = self.REGION[self.selectedRegionKey]?.spot || "랜덤 관광지";
+              self.spotDesc = "※ areaCode 매핑이 없어 기본 이미지로 표시됩니다";
+              self.spotImageUrl = self.getRandomImage();
+              return;
+            }
+
+            /*
+              ✅ 여기 URL만 프로젝트에 맞게 맞추면 됩니다.
+              - 추천: /tour-random-spot.dox
+              - 응답 예시: { spot: { title: "...", firstimage: "http...", addr1: "...", mapx: "...", mapy: "..." } }
+            */
+            $.ajax({
+              url: "/tour-random-spot.dox",
+              dataType: "json",
+              type: "GET",
+              data: { areaCode: areaCode },
+              success: function (data) {
+                const spot = data && (data.spot || data.item || data.data || data);
+                const title = spot?.title || self.REGION[self.selectedRegionKey]?.spot || "랜덤 관광지";
+                const img = spot?.firstimage || spot?.firstImage || spot?.imageUrl || "";
+                const addr = spot?.addr1 || spot?.address || "";
+
+                self.spotTitle = title;
+                self.spotDesc = addr ? addr : "※ 해당 관광지의 주소 정보가 없습니다";
+                self.spotImageUrl = img ? img : self.getRandomImage();
+              },
+              error: function () {
+                // 실패 시에도 화면이 비지 않게 fallback
+                self.spotTitle = self.REGION[self.selectedRegionKey]?.spot || "랜덤 관광지";
+                self.spotDesc = "※ 관광지 이미지를 불러오지 못해 기본 이미지로 대체합니다";
+                self.spotImageUrl = self.getRandomImage();
+              },
             });
           },
 
@@ -1623,7 +1667,6 @@
               navigation: { nextEl: ".top-banner-next", prevEl: ".top-banner-prev" },
             });
 
-            // ✅ Swiper가 레이아웃에 영향 줄 때 지도 리레이아웃
             this.topBannerSwiper.on("transitionEnd", () => {
               if (this.map) {
                 this.map.relayout();
@@ -1646,7 +1689,6 @@
             }
           },
 
-          /* ✅ (추가) 추천 여행지 둘러보기: 루프(A) + 오토플레이(C) + 한 번에 2장 */
           initRegionSwiper() {
             const self = this;
             if (self.regionSwiper) return;
@@ -1736,6 +1778,7 @@
             return this.shuffled.pop();
           },
 
+          /* ✅ (핵심) alert 대신 reservation.do로 값 넘기기 */
           fnStartTrip() {
             const self = this;
 
@@ -1744,26 +1787,22 @@
               return;
             }
 
+            // 숫자 보정(빈 값이면 0)
+            const headCount = Number.isFinite(self.headCount) ? self.headCount : 0;
+            const budget = Number.isFinite(self.budget) ? self.budget : 0;
+
             const payload = {
               regionKey: self.selectedRegionKey,
               regionName: self.selectedRegionName,
-              headCount: self.headCount,
-              budget: self.budget,
+              areaCode: self.AREA_CODE[self.selectedRegionKey] || "",
+              headCount: headCount,
+              budget: budget,
             };
-            console.log("[여행하기 payload]", payload);
 
-            alert(
-              "여행하기 클릭!\n" +
-                "지역: " +
-                (self.selectedRegionName || "-") +
-                "\n" +
-                "인원: " +
-                (self.headCount || 0) +
-                "명\n" +
-                "예산: " +
-                Number(self.budget || 0).toLocaleString() +
-                "원",
-            );
+            console.log("[reservation.do payload]", payload);
+
+            // ✅ reservation.do로 이동 (page-change.js 사용)
+            pageChange("reservation.do", payload);
           },
         },
 
