@@ -8,7 +8,8 @@ public class Report {
 	private String reportType;
 	private String userId;
 	private String contents;
-	private int boardNo;
+	private int boardNo1;
+	private int boardNo2;
 	private int commentNo;
 	private int reportCnt;
 	

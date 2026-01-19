@@ -10,6 +10,8 @@ import java.util.Map;
 
 @Mapper
 public interface AdminMapper {
+	
+	
     List<MainBoard> selectInquiryBoards();
     // 댓글달기
     void insertComment(MainBoard mainboard);
