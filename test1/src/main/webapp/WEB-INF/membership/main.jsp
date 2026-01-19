@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>멤버쉽</title>
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
@@ -273,10 +273,9 @@
                 self.sellItem = itemName;
                 self.sellPrice = itemPrice;
                 self.sellTag = itemTag;
-                console.log(self.sellItem);
-                console.log(self.sellPrice);
-                console.log(self.sellTag);
-                self.fnStatusUp();
+                //console.log(self.sellItem);
+                //console.log(self.sellPrice);
+                //console.log(self.sellTag);
                 IMP.request_pay({
 				    pg: "html5_inicis",
 				    pay_method: "card",
@@ -289,7 +288,7 @@
 			   	      if (rsp.success) {
 			   	        // 결제 성공 시
 						// alert("성공");
-						console.log(rsp);
+						//console.log(rsp);
                         // self.imp_uid = rsp.imp_uid;
                         // self.paid_amount = rsp.paid_amount;
                         // self.fnPayHistory();
@@ -320,7 +319,7 @@
                     sellTag : self.sellTag,
                     subsDay : subsDay
                 };
-                console.log(param);
+                //console.log(param);
                 $.ajax({
                     url: "/mypage/statusUp.dox",
                     dataType: "json",

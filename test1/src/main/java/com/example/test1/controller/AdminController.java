@@ -3,7 +3,9 @@ package com.example.test1.controller;
 import com.example.test1.dao.AdminService;
 import com.example.test1.model.MainBoard;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +18,10 @@ import java.util.Map;
 
 @Controller
 public class AdminController {
-    private final AdminService adminService;
 
+    @Autowired
+    AdminService adminService;
+    
     public AdminController(AdminService adminService) {
         this.adminService = adminService;
     }
@@ -32,7 +36,47 @@ public class AdminController {
         model.addAttribute("sessionPoint", session.getAttribute("point"));
         return "/main-adminPage";
     }
-
+    
+//    @RequestMapping("/admin/dashboard/data.do") 
+//    public String test(Model model) throws Exception{
+//
+//    return "/admin/dashboard";
+//	      
+//	}
+    
+    @GetMapping("/admin/dashboard.do")
+    public String dashboardPage() {
+        return "/admin/dashboard"; // dashboard.jsp
+    }
+    @GetMapping("/admin/report.do")
+    public String reportPage() {
+        return "/admin/report"; // report.jsp
+    }
+    @GetMapping("/admin/inquiry.do")
+    public String inquiryPage() {
+        return "/admin/inquiry"; // inquiry.jsp
+    }
+    @GetMapping("/admin/userManage.do")
+    public String userManagePage() {
+        return "/admin/userManage"; // userManage.jsp
+    }
+    
+    @GetMapping(value = "/admin/report.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public Map<String, Object> getReport(@RequestParam HashMap<String, Object> map) {
+        Map<String, Object> resultMap = new HashMap<>();
+        try {
+			resultMap.put("reportList", adminService.selectReportList(map));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+//			e.printStackTrace();
+			System.out.println(e);
+		}
+        return resultMap;
+    }
+/******************************************************************/
+    //레거시 코드들
+    
     // 문의글 목록 조회
     @GetMapping("/api/inquiries")
     @ResponseBody
@@ -63,7 +107,7 @@ public class AdminController {
     public List<MainBoard> getComments(@RequestParam String boardNo) {
         return adminService.getCommentsByBoardNo(boardNo);
     }
-    //삭제 구현
+    //댓글 삭제 구현
     @RequestMapping(value = "/comment-delete.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String deleteComment(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
@@ -71,7 +115,7 @@ public class AdminController {
         resultMap = adminService.deleteComment(map);
         return new ObjectMapper().writeValueAsString(resultMap);
     }
-    //불량유저
+    //불량유저(=유저 차단)
     @RequestMapping(value = "/user-block.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String blockUser(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
@@ -80,7 +124,7 @@ public class AdminController {
         resultMap.put("result", "success");
         return new ObjectMapper().writeValueAsString(resultMap);
     }
-    //불량유저목록
+    //불량유저목록(차단 유저 목록)
     @RequestMapping(value = "/bad-users.dox", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String getBadUsers(Model model) throws Exception {
@@ -88,7 +132,7 @@ public class AdminController {
         resultMap.put("badUsers", adminService.getBadUsers());
         return new ObjectMapper().writeValueAsString(resultMap);
     }
-    //제한해제
+    //제한해제(차단 해제)
     @RequestMapping(value = "/user-unblock.dox", method = RequestMethod.POST)
     @ResponseBody
     public String unblockUser(@RequestParam HashMap<String, Object> param) throws Exception {
@@ -98,7 +142,7 @@ public class AdminController {
         return new ObjectMapper().writeValueAsString(resultMap);
     }
 
-    // 신고 게시글
+    // 신고 게시글 목록
     @RequestMapping(value = "/report-list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String getReportList(@RequestParam HashMap<String, Object> param) throws Exception {
@@ -138,15 +182,27 @@ public class AdminController {
         return "/main-myComments";
     }
 
+    //내 게시글 조회
     @ResponseBody
     @RequestMapping("/getMyPosts.dox")
-    public HashMap<String, Object> getMyPosts(@RequestParam String userId) {
-        List<HashMap<String, Object>> posts = adminService.getMyPosts(userId);
+    public HashMap<String, Object> getMyPosts(@RequestParam String userId,
+                                              @RequestParam(required = false) String boardType) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("userId", userId);
+        if ("N".equals(boardType)) {
+            param.put("boardType", "N");
+        }
+
+        List<HashMap<String, Object>> posts = adminService.getMyPosts(param);
+        String status = adminService.getUserStatus(userId); // ✅ 사용자 상태 조회
+
         HashMap<String, Object> result = new HashMap<>();
         result.put("posts", posts);
+        result.put("status", status); // ✅ 사용자 상태 포함
         return result;
     }
 
+    //내 댓글 조회
     @ResponseBody
     @RequestMapping("/getMyComments.dox")
     public HashMap<String, Object> getMyComments(@RequestParam String userId) {
@@ -156,6 +212,7 @@ public class AdminController {
         return result;
     }
 
+    //게시글 수정
     @PostMapping("/api/post/update")
     @ResponseBody
     public String updatePost(@RequestParam String boardNo,
@@ -169,6 +226,7 @@ public class AdminController {
         return "success";
     }
      
+    //댓글 삭제-rest 방식
     @PostMapping("/api/comment/delete")
     @ResponseBody
     public String deleteComment(@RequestParam String commentNo) {
@@ -176,6 +234,7 @@ public class AdminController {
         return "success";
     }
     
+    //댓글 수정
     @PostMapping("/api/comment/update")
     @ResponseBody
     public String updateComment(@RequestParam String commentNo,
@@ -206,6 +265,24 @@ public class AdminController {
         return new ObjectMapper().writeValueAsString(resultMap);
     }
 
+    //유저 상태 변경
+    @RequestMapping(value = "/user-status-update.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String updateUserStatus(@RequestParam HashMap<String, Object> map) throws Exception {
+        
+        HashMap<String, Object> resultMap = adminService.changeUserStatus(map);
+       
+        return new Gson().toJson(resultMap);
+    }
+
+    //회원 목록 조회
+    @RequestMapping(value = "/user-list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String getAllUsers(@RequestParam HashMap<String, Object> map) throws Exception {
+        HashMap<String, Object> resultMap = adminService.getAllUsers(map);
+        
+        return new Gson().toJson(resultMap);
+    }
 
 
 }

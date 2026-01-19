@@ -17,7 +17,7 @@ public class Board {
 	private int commentNo;
 	private String cdate;
 	
-	
+	private String nickname;
 	
 	private String fileNo;
 	private String filePath;
@@ -28,4 +28,9 @@ public class Board {
 	
 	private String liked;
 	private int resNum;
+	private int price;
+	private String Iduser;
+	private String packname;
+	
+	private String deletedYn;
 }

@@ -29,24 +29,25 @@ public class ResController {
     @Value("${kakao_javascript_key}")
     private String kakaoAppKey;
 
-    // --- Public Mapping Methods ---
-
+    // =========================
+    // 예약 저장 (기존 로직)
+    // =========================
     @PostMapping("/api/reservation/save")
     @ResponseBody
     public ResponseEntity<?> saveReservation(@RequestBody ReservationRequest request) {
         try {
             Reservation reservation = createReservation(request);
-
             reservation.setUserId("999");
 
-            Long calculatedPrice = calculateTotalPrice(request);
-            reservation.setPrice(String.valueOf(calculatedPrice));
+            // descript 저장
+            reservation.setDescript(request.getDesecript());
+
+            Long totalPrice = calculateTotalPrice(request);
+            reservation.setPrice(String.valueOf(totalPrice));
 
             setAreaNumFromRequest(reservation, request);
             setThemNumFromRequest(reservation, request);
-
-            // ✅ 퍼센트가 아닌 "원(금액)"으로 환산하여 컬럼에 저장
-            applyBudgetAllocationsByAmount(reservation, request, calculatedPrice);
+            applyBudgetAllocationsByAmount(reservation, request, totalPrice);
 
             if (reservation.getPackname() == null) {
                 reservation.setPackname("임시 패키지명");
@@ -56,14 +57,15 @@ public class ResController {
             Long resNum = resService.saveNewReservation(reservation, pois);
 
             return ResponseEntity.ok(Map.of("resNum", resNum, "message", "일정 저장 성공"));
-
         } catch (Exception e) {
-            System.err.println("예약 저장 중 오류 발생: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.internalServerError().body(Map.of("message", "일정 저장 실패", "error", e.getMessage()));
         }
     }
 
+    // =========================
+    // 예약 상세 화면
+    // =========================
     @GetMapping("/reservation-view.do")
     public String reservationView(@RequestParam("resNum") Long resNum, Model model) {
         Reservation reservationDetails = resService.getReservationDetails(resNum);
@@ -73,24 +75,76 @@ public class ResController {
 
         try {
             reservationDetails.setPois(pois);
-
-            String reservationJson = objectMapper.writeValueAsString(reservationDetails);
-            model.addAttribute("reservationJson", reservationJson);
-
-            String poisJson = objectMapper.writeValueAsString(pois);
-            model.addAttribute("poiListJson", poisJson);
-
+            model.addAttribute("reservationJson", objectMapper.writeValueAsString(reservationDetails));
+            model.addAttribute("poiListJson", objectMapper.writeValueAsString(pois));
         } catch (Exception e) {
-            System.err.println("JSON 변환 실패: " + e.getMessage());
             model.addAttribute("reservationJson", "{}");
             model.addAttribute("poiListJson", "[]");
         }
-
         return "reservation-view";
     }
 
-    // --- 자동차 길찾기: 기존 ResService 재활용 ---
+    // =========================
+    // (신규) 결제 금액 조회: accom + food 합계
+    // =========================
+    @GetMapping("/api/reservation/pay/amount")
+    @ResponseBody
+    public ResponseEntity<?> getPayAmount(@RequestParam("resNum") Long resNum) {
+        try {
+            Long amount = resService.getPayAmount(resNum);
+            if (amount == null) amount = 0L;
+            return ResponseEntity.ok(Map.of("amount", amount));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("message", "결제 금액 조회 실패", "error", e.getMessage()));
+        }
+    }
 
+    // =========================
+    // 코스명(별칭)/메모 저장
+    // =========================
+    @PostMapping("/api/reservation/update/packname")
+    @ResponseBody
+    public ResponseEntity<?> updatePackname(@RequestBody Map<String, Object> body) {
+        try {
+            Long resNum = body.get("resNum") == null ? null : Long.valueOf(body.get("resNum").toString());
+            String packName = body.get("packName") == null ? null : body.get("packName").toString();
+            String userId = body.get("userId") == null ? null : body.get("userId").toString();
+            String descript = body.get("descript") == null ? "" : body.get("descript").toString();
+
+            if (resNum == null || packName == null || packName.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "resNum/packName 누락"));
+            }
+
+            boolean ok = resService.updatePackname(resNum, packName.trim(), userId, descript);
+            return ok ? ResponseEntity.ok(Map.of("message", "코스명/메모 저장 완료"))
+                      : ResponseEntity.status(404).body(Map.of("message", "대상 예약이 없습니다."));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("message", "코스명/메모 저장 실패", "error", e.getMessage()));
+        }
+    }
+
+    // =========================
+    // 여행 포기(예약 삭제)
+    // =========================
+    @PostMapping("/api/reservation/delete")
+    @ResponseBody
+    public ResponseEntity<?> deleteReservation(@RequestBody Map<String, Object> body) {
+        try {
+            Long resNum = body.get("resNum") == null ? null : Long.valueOf(body.get("resNum").toString());
+            if (resNum == null) return ResponseEntity.badRequest().body(Map.of("message", "resNum 누락"));
+
+            boolean ok = resService.deleteReservationCascade(resNum); // POI → RESERVATION 순서 삭제
+            return ok ? ResponseEntity.ok(Map.of("message", "예약 삭제 완료"))
+                      : ResponseEntity.status(404).body(Map.of("message", "삭제 대상 없음"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("message", "삭제 실패", "error", e.getMessage()));
+        }
+    }
+
+    // =========================
+    // 자동차 길찾기
+    // =========================
     @PostMapping("/api/route/build")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> buildCarRoute(@RequestBody RouteBuildRequest req) {
@@ -98,13 +152,12 @@ public class ResController {
             if (req == null || req.getPois() == null || req.getPois().size() < 2) {
                 return ResponseEntity.badRequest().body(Map.of("error", "최소 2개 지점이 필요합니다."));
             }
-
             List<Poi> poiList = req.getPois().stream().map(p -> {
                 Poi poi = new Poi();
                 poi.setContentId(p.getContentId());
                 poi.setPlaceName(p.getName());
-                poi.setMapX(p.getX()); // 경도
-                poi.setMapY(p.getY()); // 위도
+                poi.setMapX(p.getX());
+                poi.setMapY(p.getY());
                 return poi;
             }).collect(Collectors.toList());
 
@@ -118,7 +171,7 @@ public class ResController {
         }
     }
 
-    // --- Private Helper Methods ---
+    // ---------- Helpers ----------
 
     private Long calculateTotalPrice(ReservationRequest request) {
         return request.getItinerary().values().stream()
@@ -129,8 +182,7 @@ public class ResController {
 
     private void setThemNumFromRequest(Reservation reservation, ReservationRequest request) {
         if (request.getThemes() != null && !request.getThemes().isEmpty()) {
-            String themesString = String.join(",", request.getThemes());
-            reservation.setThemNum(themesString);
+            reservation.setThemNum(String.join(",", request.getThemes()));
         } else {
             reservation.setThemNum("DEFAULT");
         }
@@ -138,12 +190,8 @@ public class ResController {
 
     private void setAreaNumFromRequest(Reservation reservation, ReservationRequest request) {
         if (request.getRegions() != null && !request.getRegions().isEmpty()) {
-            try {
-                String sidoCode = request.getRegions().get(0).getSidoCode();
-                reservation.setAreaNum(sidoCode);
-            } catch (Exception e) {
-                reservation.setAreaNum("99");
-            }
+            try { reservation.setAreaNum(request.getRegions().get(0).getSidoCode()); }
+            catch (Exception e) { reservation.setAreaNum("99"); }
         } else {
             reservation.setAreaNum("99");
         }
@@ -161,44 +209,34 @@ public class ResController {
                 .flatMap(entry -> {
                     String date = entry.getKey();
                     List<ReservationRequest.PoiDto> dtos = entry.getValue();
-
-                    return dtos.stream()
-                            .map(dto -> {
-                                Poi poi = new Poi();
-                                poi.setContentId(dto.getContentId());
-                                poi.setTypeId(dto.getTypeId());
-                                poi.setReservDate(date);
-                                poi.setPlaceName(dto.getTitle());
-                                poi.setRating(0);
-                                poi.setContent("");
-                                return poi;
-                            });
+                    return dtos.stream().map(dto -> {
+                        Poi poi = new Poi();
+                        poi.setContentId(dto.getContentId());
+                        poi.setTypeId(dto.getTypeId());
+                        poi.setReservDate(date);
+                        poi.setPlaceName(dto.getTitle());
+                        poi.setRating(0);
+                        poi.setContent("");
+                        return poi;
+                    });
                 })
                 .collect(Collectors.toList());
     }
 
-    /**
-     * ✅ budgetWeights(% 등분) → "금액(원)"으로 환산해서 Reservation의 *_budget 컬럼에 세팅
-     * - 합계가 100이 아니면 정규화
-     * - 반올림 후 마지막 항목(act)에 잔차 보정
-     */
     private void applyBudgetAllocationsByAmount(Reservation reservation, ReservationRequest request, long totalPrice) {
         Map<String, Integer> weights = request.getBudgetWeights();
         if (weights == null || totalPrice <= 0) {
-            // 방어적으로 0 세팅
             reservation.setEtcBudget(0f);
             reservation.setAccomBudget(0f);
             reservation.setFoodBudget(0f);
             reservation.setActBudget(0f);
             return;
         }
-
-        // 입력 순서를 고정(FE와 표기 순서 일치)
         Map<String, Integer> ordered = new LinkedHashMap<>();
-        ordered.put("etc",  weights.getOrDefault("etc", 0));
-        ordered.put("accom",weights.getOrDefault("accom", 0));
-        ordered.put("food", weights.getOrDefault("food", 0));
-        ordered.put("act",  weights.getOrDefault("act", 0));
+        ordered.put("etc",   weights.getOrDefault("etc", 0));
+        ordered.put("accom", weights.getOrDefault("accom", 0));
+        ordered.put("food",  weights.getOrDefault("food", 0));
+        ordered.put("act",   weights.getOrDefault("act", 0));
 
         int sum = ordered.values().stream().mapToInt(Integer::intValue).sum();
         if (sum <= 0) {
@@ -208,33 +246,31 @@ public class ResController {
             reservation.setActBudget(0f);
             return;
         }
-
-        long etcAmt = Math.round(totalPrice * (ordered.get("etc")   / (double) sum));
+        long etcAmt   = Math.round(totalPrice * (ordered.get("etc")   / (double) sum));
         long accomAmt = Math.round(totalPrice * (ordered.get("accom") / (double) sum));
-        long foodAmt = Math.round(totalPrice * (ordered.get("food")  / (double) sum));
+        long foodAmt  = Math.round(totalPrice * (ordered.get("food")  / (double) sum));
+        long partial  = etcAmt + accomAmt + foodAmt;
+        long actAmt   = totalPrice - partial;
 
-        long partial = etcAmt + accomAmt + foodAmt;
-        long actAmt = totalPrice - partial; // 잔차 보정
-
-        // DTO 세터가 Float라 가정 → 원 단위를 그대로 Float로 저장
         reservation.setEtcBudget((float) etcAmt);
         reservation.setAccomBudget((float) accomAmt);
         reservation.setFoodBudget((float) foodAmt);
         reservation.setActBudget((float) actAmt);
     }
 
-    /** 프론트 요청 DTO (새 파일 생성 없이 내부 클래스 사용) */
+    /** 프론트 요청 DTO */
     @Data
     private static class RouteBuildRequest {
-        private Long resNum;     // 로깅용
-        private String day;      // "YYYY-MM-DD"
+        private Long resNum;
+        private String day;
         private List<RoutePoiLite> pois;
         @Data
         private static class RoutePoiLite {
             private Long contentId;
             private String name;
-            private double x; // 경도(lon)
-            private double y; // 위도(lat)
+            private double x; // 경도
+            private double y; // 위도
         }
     }
 }
+

@@ -11,6 +11,7 @@
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
     rel="stylesheet"
 />
+
  <link rel="stylesheet" href="/css/main-style.css">
 <link rel="stylesheet" href="/css/common-style.css">
 <link rel="stylesheet" href="/css/header-style.css">
@@ -218,6 +219,7 @@ body {
   background: #1565c0;
   color: white;
 }
+
 </style>
 </head>
 <body>
@@ -233,11 +235,12 @@ body {
     <h2 style="margin:0;">📅 여행 일정</h2>
     <button class="create-btn" @click="fnWrite">게시글 등록하기</button>
   </div>
+
   <p style="text-align:center; color:#555; margin-bottom:25px;">
     방문한 장소에 대한 소중한 후기를 남겨주세요
   </p>
 
-  <!-- 탭 메뉴 -->
+  <!-- ✅ 탭 -->
   <div style="display:flex; justify-content:center; margin-bottom:20px;">
     <button 
       v-for="(list, day) in positionsByDay" 
@@ -248,12 +251,13 @@ body {
     </button>
   </div>
 
-  <!-- 선택된 일차만 표시 -->
+
+  <!-- ✅ 일차별 리스트 -->
   <div v-if="positionsByDay[selectedDay]" class="main-con">
     <div class="day-num">{{ selectedDay }}일차 - {{ positionsByDay[selectedDay][0].day }}</div>
 
     <div v-for="item in positionsByDay[selectedDay]" :key="item.title" class="day-item-con" @click="openModal(item)">
-      <img :src="item.firstimage !=''? item.firstimage:'https://placehold.co/320x240'" alt="이미지">
+      <img :src="item.firstimage || getRandomImage()" alt="이미지">
       <div class="item-md">
         <div>
           <div class="item-title">{{ item.title }}</div>
@@ -270,9 +274,10 @@ body {
     </div>
   </div>
 
+  <!-- ✅ 후기 모달 -->
   <div v-if="modalFlg" class="modal-overlay" @click.self="closeModal">
     <div class="modal">
-      <img :src="selectedItem.firstimage !='' ? selectedItem.firstimage : 'https://placehold.co/600x260' ">
+      <img :src="selectedItem.firstimage || getRandomImage()">
       <h3>{{ selectedItem.title }}</h3>
       <p style="margin-bottom:15px;">{{ selectedItem.overview }}</p>
       <h4>평점을 선택해주세요</h4>
@@ -297,195 +302,158 @@ body {
     </div>
   </div>
 </div>
-</div>
+
 <%@ include file="components/footer.jsp" %>
+
+<!-- ✅ JSON 데이터를 안전하게 주입 -->
 </body>
 </html>
 
 <script>
-    const app = Vue.createApp({
-        data() {
-            return {
-                // 변수 - (key : value)
-                userId:"${sessionId}",
-                resNum:"${resNum}",
-                info:[],
-                positionsByDay:{},
-                modalFlg:false,
-                selectedItem:{},
-                rating:0,
-                reviewText:"",
-                selectedDay:1,
-                contentId:"",
-                title:""
-            };
-        },
-        methods: {
-            // 함수(메소드) - (key : function())
-        fninfo() {
-        let self = this;
-        let param = {
-                    resNum:self.resNum,
-                };
-        $.ajax({
-            url: '/share.dox',
-            type: 'GET',
-            data:param,
-            success: function(data) {
-                self.info = data;  // dayMap 전체
-                console.log(data);
-                
-            //키값 넣어주기
-            const days = Object.keys(data).map(k => parseInt(k)).sort((a,b)=>a-b);
-            console.log(days);
-            for (let i = 0; i < days.length; i++) {
-              const day = days[i];
-              const dayList = data[day];
-              self.positionsByDay[day] = [];
-                
-              for (let j = 0; j < dayList.length; j++) {
-                  const item = dayList[j];
-                  self.positionsByDay[day].push({
-                      title: item.title,
-                      lat: parseFloat(item.mapy),
-                      lng: parseFloat(item.mapx),
-                      overview: item.overview,
-                      dayNum: day,
-                      reserv_date: item.reserv_date,
-                      firstimage:item.firstimage,
-                      addr1:item.addr1,
-                      contentId:item.contentid,
-                      day:item.day,
-                      rating:item.rating,
-                    });
-                    
-                  }
-                  console.log(self.positionsByDay);
-                  
-                  self.selectedDay = days[0];
-                  
-              }
-              console.log(data);
-            },
-          });
-          
-        },
-        upload : function(form){
-          var self = this;
-          $.ajax({
-            url : "/review-fileUpload.dox"
-            , type : "POST"
-            , processData : false
-            , contentType : false
-            , data : form
-            , success:function(response) { 
-              
-            }	           
-          });
-        },
-        openModal(item){
-          let self=this;
-          self.selectedItem = item;
-          self.modalFlg = true;
-          self.contentId = item.contentId;
-          self.rating = item.rating;          
-        },
-        closeModal(){
-          let self=this;
-          self.modalFlg = false;
-          self.reviewText = "";
-        },
-        setRating(i){
-          let self=this;
-          self.rating = i;
-        },
-         getStarIcon(index, itemRating) {
-          if (itemRating >= index) return "star";
-          else if (itemRating >= index - 0.5) return "star_half";
-          else return "star_border";
-        },
-        submitReview(){
-          let self = this;
-                let param = {
-                  rating:self.rating,
-                  content:self.reviewText,
-                  contentId:self.contentId,
-                  resNum:self.resNum
-                };
-                $.ajax({
-                    url: "/update-rating.dox",
-                    dataType: "json",
-                    type: "POST",
-                    data: param,
-                    success: function (data) {
-                      alert("후기작성완료되었습니다.");
-                      console.log(data);
-                      console.log($("#file1")[0].files);
-                      
-                      let form = new FormData();
-                      for(let i=0; i<$("#file1")[0].files.length;i++){
-                        form.append( "file1",  $("#file1")[0].files[i] );
-                      }
-                      form.append( "contentId",  data.contentId); // 임시 pk
-                      form.append( "userId",  self.userId);
-                      form.append( "title",  self.selectedItem.title)
-                      self.upload(form);  
-                      
-
-                      self.fninfo();                  
-                      if (self.selectedItem) {
-                         self.selectedItem.rating = self.rating;
-                      }
-
-
-
-                      self.closeModal();
-                    }
-                });
-          
-        },
-        fnWrite(){
-          let self = this;
-                let param = {
-                  resNum:self.resNum,
-                  userId:self.userId
-                };
-                console.log(self.resNum, self.userId);
-                
-                if(!confirm("등록하시겟습니까?")){
-                  return;
-                }
-                $.ajax({
-                    url: "/review-add.dox",
-                    dataType: "json",
-                    type: "POST",
-                    data: param,
-                    success: function (data) {
-                      alert(data.msg);
-                      location.href="review-list.do"
-                      
-                    }
-                });
-        },
-         fnbck() {
-                history.back();
-          },
-
-        }, // methods
-        mounted() {
-            // 처음 시작할 때 실행되는 부분
-            let self = this;
-            self.fninfo();
-           window.addEventListener("popstate", () => {
-                self.fninfo();
-            });
-            window.addEventListener("pageshow", (event) => {
-                if (event.persisted) {
-                    self.fninfo();
-                }
-            });
+  
+const app = Vue.createApp({
+  data() {
+    return {
+      userId: "${sessionId}",
+      resNum: "${resNum}",
+      info: [],
+      positionsByDay: {},
+      modalFlg: false,
+      selectedItem: {},
+      rating: 0,
+      reviewText: "",
+      selectedDay: 1,
+      contentId: "",
+      title: "",
+      randomImages: [
+        "/img/defaultImg01.jpg",
+        "/img/defaultImg02.jpg",
+        "/img/defaultImg03.jpg",
+        "/img/defaultImg04.jpg",
+        "/img/defaultImg05.jpg",
+        "/img/defaultImg06.jpg"
+      ],
+    };
+  },
+  methods: {
+    fninfo() {
+      let self = this;
+      $.ajax({
+        url: '/share.dox',
+        type: 'GET',
+        data: { resNum: self.resNum },
+        success: function(data) {
+          self.info = data;
+          const days = Object.keys(data).map(k => parseInt(k)).sort((a,b)=>a-b);
+          for (let i = 0; i < days.length; i++) {
+            const day = days[i];
+            const dayList = data[day];
+            self.positionsByDay[day] = [];
+            for (let j = 0; j < dayList.length; j++) {
+              const item = dayList[j];
+              self.positionsByDay[day].push({
+                title: item.title,
+                lat: parseFloat(item.mapy),
+                lng: parseFloat(item.mapx),
+                overview: item.overview,
+                dayNum: day,
+                reserv_date: item.reserv_date,
+                firstimage: item.firstimage,
+                addr1: item.addr1,
+                contentId: item.contentid,
+                day: item.day,
+                rating: item.rating,
+              });
+            }
+            
+          }
+          //console.log(data);
+          self.selectedDay = days[0];
+            const firstDayPois = self.positionsByDay[self.selectedDay];
+           
         }
-    });
+      });
+    },
+    upload(form) {
+      $.ajax({
+        url: "/review-fileUpload.dox",
+        type: "POST",
+        processData: false,
+        contentType: false,
+        data: form
+      });
+    },
+    openModal(item) {
+      this.selectedItem = item;
+      this.modalFlg = true;
+      this.contentId = item.contentId;
+      this.rating = item.rating;
+    },
+    closeModal() {
+      this.modalFlg = false;
+      this.reviewText = "";
+    },
+    setRating(i) { this.rating = i; },
+    getStarIcon(index, itemRating) {
+      if (itemRating >= index) return "star";
+      else if (itemRating >= index - 0.5) return "star_half";
+      else return "star_border";
+    },
+    submitReview() {
+      let self = this;
+      let param = {
+        rating: self.rating,
+        content: self.reviewText,
+        contentId: self.contentId,
+        resNum: self.resNum
+      };
+      $.ajax({
+        url: "/update-rating.dox",
+        dataType: "json",
+        type: "POST",
+        data: param,
+        success: function(data) {
+          alert("후기작성완료되었습니다.");
+          let form = new FormData();
+          for (let i = 0; i < $("#file1")[0].files.length; i++) {
+            form.append("file1", $("#file1")[0].files[i]);
+          }
+          form.append("contentId", data.contentId);
+          form.append("userId", self.userId);
+          form.append("title", self.selectedItem.title);
+          self.upload(form);
+          self.fninfo();
+          if (self.selectedItem) self.selectedItem.rating = self.rating;
+          self.closeModal();
+        }
+      });
+    },
+    fnWrite() {
+      let self = this;
+      if (!confirm("등록하시겠습니까?")) return;
+      $.ajax({
+        url: "/review-add.dox",
+        dataType: "json",
+        type: "POST",
+        data: { resNum: self.resNum, userId: self.userId },
+        success: function(data) {
+          alert(data.msg);
+          location.href = "review-list.do";
+        }
+      });
+    },
+    fnbck() { history.back(); },
+    getRandomImage() {
+      const index = Math.floor(Math.random() * this.randomImages.length);
+      return this.randomImages[index];
+    },
+  },
+  mounted() {
+    let self=this;
 
-    app.mount('#app');
+    self.fninfo();
+  },
+});
+
+app.mount('#app');
 </script>

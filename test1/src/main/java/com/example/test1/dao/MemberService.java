@@ -33,6 +33,7 @@ public class MemberService {
 			String message = member != null ? "이미 사용중인 아이디 입니다." : "사용 가능한 아이디 입니다.";
 			String result = member != null ? "true" : "false";
 			
+			resultMap.put("info", member);
 			resultMap.put("msg", message);
 			resultMap.put("result", result);
 		} catch (Exception e) {
@@ -81,7 +82,7 @@ public class MemberService {
 			
 			if(loginFlg) {
 				
-				if(member.getCnt() >= 5) {
+				if(member.getCnt() >= 5 && !member.getStatus().equals("A")) {
 					message = "로그인 불가(비밀번호를 5회 이상 잘못 입력하셨습니다.)";
 					result = "fail";
 				} else {
@@ -113,11 +114,11 @@ public class MemberService {
 				Member idCheck = memberMapper.memberIdCheck(map);
 				int cntUp = memberMapper.loginCntUp(map);
 				
-				if(idCheck.getCnt()>=5) {
+				if(idCheck.getCnt()>=5 && !member.getStatus().equals("A")) {
 					message = "비밀번호를 5회 이상 잘못 입력하셨습니다.";
 					result = "fail";
 				} else {
-					if(idCheck.getCnt()==4) {
+					if(idCheck.getCnt()==4 && !member.getStatus().equals("A")) {
 						message = "비밀번호를 5회 틀리셨습니다. \n로그인이 제한됩니다. \n관리자에게 문의해주세요.";
 						result = "fail";
 					} else {
@@ -233,12 +234,15 @@ public class MemberService {
 		HashMap<String, Object> resultMap = new HashMap<String, Object>();
 		try {
 			Member member = memberMapper.memberLogin(map);
+			Point point = pointMapper.recentPoint(map);
 
 			if(member != null) {
 				session.setAttribute("sessionId", member.getUserId());
 				session.setAttribute("sessionName", member.getName());
 				session.setAttribute("sessionNickname", member.getNickname());
 				session.setAttribute("sessionStatus", member.getStatus());
+				
+				session.setAttribute("sessionPoint", point.getTotalPoint());
 				
 				resultMap.put("msg", "로그인되었습니다.");
 				resultMap.put("result", "success");
@@ -324,4 +328,45 @@ public class MemberService {
 		return resultMap;
 	}
 	
+	public HashMap<String, Object> addProfileImg(HashMap<String, Object> map){
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		
+		int cnt = memberMapper.insertProfileImg(map);
+		if(cnt >0) {
+			resultMap.put("result", "success");
+		} else {
+			resultMap.put("result", "fail");
+		}
+		
+		return resultMap;
+	}
+	
+	public HashMap<String, Object> updateProfileImg(HashMap<String, Object> map){
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		
+		int cnt = memberMapper.updateProfileImg(map);
+		
+		if(cnt >0) {
+			resultMap.put("result", "success");
+			System.out.println("success");
+		} else {
+			resultMap.put("result", "fail");
+			System.out.println("fail");
+		}
+		
+		return resultMap;
+	}
+	
+	public HashMap<String, Object> profileImgPath(HashMap<String, Object> map){
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		
+		Member profileImgPath = memberMapper.profileImgPath(map);
+		
+		if(profileImgPath != null) {
+			resultMap.put("result", "success");
+			resultMap.put("info", profileImgPath);
+		} 
+
+		return resultMap;
+	}
 }

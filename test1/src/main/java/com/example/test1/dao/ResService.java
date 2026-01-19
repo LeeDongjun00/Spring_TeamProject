@@ -20,7 +20,7 @@ public class ResService {
     @Autowired
     private ResMapper resMapper;
 
-    // ---- Kakao Mobility Directions 설정 ----
+    // Kakao Mobility Directions
     @Value("${kakao.navi.base-url:https://apis-navi.kakaomobility.com/v1/directions}")
     private String kakaoDirectionsBase;
 
@@ -32,8 +32,7 @@ public class ResService {
 
     private final RestTemplate routeRt = new RestTemplate();
 
-    // ---- 예약 저장/조회 ----
-
+    // -------- 예약 저장/조회 --------
     @Transactional
     public Long saveNewReservation(Reservation reservation, List<Poi> pois) {
         resMapper.insertReservation(reservation);
@@ -52,24 +51,37 @@ public class ResService {
     public Reservation getReservationDetails(Long resNum) {
         Reservation reservation = resMapper.selectReservationByResNum(resNum);
         if (reservation == null) return null;
-        List<Poi> pois = getPoisByResNum(resNum);
-        reservation.setPois(pois);
+        reservation.setPois(getPoisByResNum(resNum));
         return reservation;
     }
 
-    // ---- 자동차 경로(도로) 생성 ----
+    // -------- (신규) 결제 금액 조회 --------
+    public Long getPayAmount(Long resNum) {
+        Long amount = resMapper.selectPayAmount(resNum);
+        return amount == null ? 0L : amount;
+    }
 
-    /**
-     * 입력: Poi 목록 (mapX: 경도, mapY: 위도)
-     * 출력: { points:[{x,y}..], summary:{distance(m), duration(sec), toll(KRW), segments} }
-     */
+    // -------- 코스명/메모 업데이트 --------
+    @Transactional
+    public boolean updatePackname(Long resNum, String packName, String userId, String descript) {
+        return resMapper.updatePackname(resNum, packName, userId, descript) > 0;
+    }
+
+    // -------- 여행 포기(예약 삭제) --------
+    @Transactional
+    public boolean deleteReservationCascade(Long resNum) {
+        // FK 문제 방지: 자식(POI) → 부모(RESERVATION) 순서 삭제
+        resMapper.deletePoisByResNum(resNum);
+        return resMapper.deleteReservation(resNum) > 0;
+    }
+
+    // -------- 자동차 경로 --------
     public Map<String, Object> buildCarRoute(List<Poi> pois) {
         List<Map<String, Object>> points = new ArrayList<>();
         long totalDist = 0, totalDur = 0, totalToll = 0;
         int segments = 0;
 
         Double lastX = null, lastY = null;
-
         for (int i = 0; i < pois.size() - 1; i++) {
             Poi o = pois.get(i);
             Poi d = pois.get(i + 1);
@@ -80,12 +92,11 @@ public class ResService {
             for (Map<String, Object> p : seg.points) {
                 double x = (double) p.get("x");
                 double y = (double) p.get("y");
-                if (lastX == null || lastY == null || lastX != x || lastY != y) {
+                if (lastX == null || lastY == null || !lastX.equals(x) || !lastY.equals(y)) {
                     points.add(p);
                     lastX = x; lastY = y;
                 }
             }
-
             totalDist += seg.distance;
             totalDur  += seg.duration;
             totalToll += seg.toll;
@@ -137,7 +148,6 @@ public class ResService {
             Number dur  = (Number) summary.get("duration");
             distance = dist == null ? 0 : dist.longValue();
             duration = dur  == null ? 0 : dur.longValue();
-
             Map<String, Object> fare = (Map<String, Object>) summary.get("fare");
             if (fare != null) {
                 Number t = (Number) fare.get("toll");
@@ -152,7 +162,7 @@ public class ResService {
                 List<Map<String, Object>> roads = (List<Map<String, Object>>) sec.get("roads");
                 if (roads == null) continue;
                 for (Map<String, Object> road : roads) {
-                    List<Double> vtx = (List<Double>) road.get("vertexes"); // [x1,y1,x2,y2,...]
+                    List<Double> vtx = (List<Double>) road.get("vertexes");
                     if (vtx == null || vtx.size() < 2) continue;
                     for (int i = 0; i < vtx.size() - 1; i += 2) {
                         outPoints.add(Map.of("x", vtx.get(i), "y", vtx.get(i + 1)));
@@ -160,7 +170,6 @@ public class ResService {
                 }
             }
         }
-
         if (outPoints.isEmpty()) throw new RuntimeException("vertexes 파싱 결과 0개");
 
         Segment seg = new Segment();

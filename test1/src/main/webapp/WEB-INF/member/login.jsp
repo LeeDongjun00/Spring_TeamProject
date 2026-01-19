@@ -304,8 +304,8 @@
     </head>
 
     <body>
+    <%@ include file="../components/header.jsp" %>
         <div id="app">
-            <%@ include file="../components/header.jsp" %>
 
                 <div class="body">
                     <div class="loginField">
@@ -326,7 +326,7 @@
                         <div class="field" style="margin-top:16px;">
                             <label for="id">아이디</label>
                             <input id="id" class="input" type="text" v-model="id" placeholder="영문 소문자+숫자"
-                                autocomplete="username" @input="id = id.replace(/[^a-z0-9]/g, '')">
+                                autocomplete="username" @input="id = id.replace(/[^a-z0-9]/g, '')" autofocus="true">
                         </div>
 
                         <div class="field">
@@ -359,8 +359,8 @@
                     </div>
                 </div>
 
-                <%@ include file="../components/footer.jsp" %>
         </div>
+    <%@ include file="../components/footer.jsp" %>
 
         <script>
             const app = Vue.createApp({

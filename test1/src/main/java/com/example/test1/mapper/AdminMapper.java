@@ -2,6 +2,7 @@ package com.example.test1.mapper;
 
 import com.example.test1.model.MainBoard;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Admin;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +22,11 @@ public interface AdminMapper {
 
     List<HashMap<String, Object>> selectBadUsers();
     
-    void changeUserStatus(HashMap<String, Object> param);
+    int changeUserStatus(HashMap<String, Object> param);
 
     List<HashMap<String, Object>> selectReportList(HashMap<String, Object> param);
     // 내 게시글 조회
-    List<HashMap<String, Object>> selectMyPosts(String userId);
+    List<HashMap<String, Object>> selectMyPosts(Map<String, Object> param);
     // 내 댓글 조회
 	List<HashMap<String, Object>> selectMyComments(String userId);
    
@@ -42,7 +43,17 @@ public interface AdminMapper {
 	HashMap<String, Object> selectBoardDetail(String boardNo);
 	List<MainBoard> selectByBoardNo(String boardNo);
 
-	
+	String selectUserStatus(String userId);
 
+	void updateUserStatusDirect(HashMap<String, Object> param);
+
+	//유저리스트
+	List<Admin> selectAllUsers(HashMap<String, Object> map);
+	//유저수
+	
+	int selectAllUsersCnt(HashMap<String, Object> map);
+	
+	
+	
 
 }

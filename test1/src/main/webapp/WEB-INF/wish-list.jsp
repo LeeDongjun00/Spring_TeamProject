@@ -15,19 +15,18 @@
             href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
             rel="stylesheet"
         />
-        
+
         <script src="/js/page-change.js"></script>
-        <link rel="stylesheet" href="/css/main-style.css">
-        <link rel="stylesheet" href="/css/common-style.css">
-        <link rel="stylesheet" href="/css/header-style.css">
-        <link rel="stylesheet" href="/css/main-images.css">
+        <link rel="stylesheet" href="/css/main-style.css" />
+        <link rel="stylesheet" href="/css/common-style.css" />
+        <link rel="stylesheet" href="/css/header-style.css" />
+        <link rel="stylesheet" href="/css/main-images.css" />
 
         <style>
             body {
                 font-family: "Noto Sans KR", sans-serif;
                 background-color: #f6f7fb;
                 margin: 0;
-                padding: 40px 20px;
             }
 
             h2 {
@@ -204,7 +203,7 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                margin-top: 40px;
+                margin: 40px 0px;
                 gap: 8px;
                 font-family: "Noto Sans KR", sans-serif;
             }
@@ -388,11 +387,7 @@
                     <div class="card-inner">
                         <!-- 앞면 -->
                         <div class="card-front">
-                            <img
-                                class="card-img"
-                                :src="thumbnailMap[item.resNum]?.firstimage || 'https://placehold.co/370x320'"
-                                :alt="item.packname"
-                            />
+                             <img class="card-img" :src="thumbnailMap[item.resNum]?.firstimage || getRandomImage()" :alt="item.packname" />
                         </div>
 
                         <!-- 뒷면 -->
@@ -427,7 +422,7 @@
                                 <div class="card-desc">{{ item.descript }}</div>
                                 <div class="card-info">
                                     💰 {{ Number(item.price).toLocaleString() }}원 <br />
-                                    👤 {{ item.userId }}
+                                    👤 {{ item.Iduser }}
                                 </div>
 
                                 <div class="card-footer">
@@ -484,6 +479,14 @@
                 pageGroupStart: 1,
                 pageGroupEnd: 10,
                 tag: "",
+                  randomImages: [
+            "/img/defaultImg01.jpg",
+            "/img/defaultImg02.jpg",
+            "/img/defaultImg03.jpg",
+            "/img/defaultImg04.jpg",
+            "/img/defaultImg05.jpg",
+            "/img/defaultImg06.jpg",
+          ],
             };
         },
         methods: {
@@ -502,11 +505,12 @@
                     type: "POST",
                     data: param,
                     success: function (data) {
-                        console.log(data);
+                        //console.log(data);
                         self.list = data.list;
                         self.totalPages = Math.ceil(data.cnt / self.pageSize);
                         let group = Math.floor((self.page - 1) / self.pageGroupSize);
-                        console.log(self.page, self.pageGroupSize);
+                        console.log(data);
+                        
 
                         self.pageGroupStart = group * self.pageGroupSize + 1;
                         self.pageGroupEnd = Math.min(self.pageGroupStart + self.pageGroupSize - 1, self.totalPages);
@@ -524,7 +528,7 @@
                     },
                     success: function (data) {
                         self.thumbnailMap = data.list;
-                        console.log();
+                        //console.log();
                     },
                 });
             },
@@ -545,7 +549,7 @@
                         self.fnList();
                     },
                 });
-                console.log(item);
+                //console.log(item);
             },
             fnDetail(item) {
                 // 상세 페이지 이동 (URL은 프로젝트에 맞게 수정)
@@ -557,7 +561,7 @@
             fnchange(num) {
                 let self = this;
                 self.page = num;
-                console.log(self.page);
+                //console.log(self.page);
 
                 self.fnList();
             },
@@ -571,12 +575,35 @@
             fnbck() {
                 history.back();
             },
+             getRandomImage() {
+          if (!this.shuffled) {
+            this.shuffled = [...this.randomImages].sort(() => Math.random() - 0.5);
+          }
+
+          // 하나 꺼내기 (없으면 다시 섞기)
+          if (this.shuffled.length === 0) {
+            this.shuffled = [...this.randomImages].sort(() => Math.random() - 0.5);
+          }
+
+          return this.shuffled.pop();
+        },
         }, // methods
         mounted() {
             // 처음 시작할 때 실행되는 부분
             let self = this;
             self.fnList();
             self.fnThumnail();
+
+            window.addEventListener("popstate", () => {
+                self.fnList();
+                self.fnThumnail();
+            });
+            window.addEventListener("pageshow", (event) => {
+                if (event.persisted) {
+                    self.fnList();
+                    self.fnThumnail();
+                }
+            });
         },
     });
 

@@ -1,6 +1,8 @@
 package com.example.test1.dao;
 
 import java.io.StringReader;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,8 +33,13 @@ public class ShareBoardViewService {
 	@Value("${TOUR_KEY}")
 	private String apiKey;
 	
+
+	
 	@Autowired
 	ShareBoardMapper ShareBoardMapper;
+	
+	@Autowired
+	TourAreaService TourAreaService ;
 	
 	@Autowired
 	ReviewMapper reviewMapper;
@@ -41,12 +48,12 @@ public class ShareBoardViewService {
     public List<HashMap<String, Object>> getInfo(String contentId, String day , int dayNum)throws Exception {
 		// TODO Auto-generated method stub
 		List<HashMap<String, Object>> resultMap = new ArrayList<>();
-
+		String encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
 		
 		
 			String url = "https://apis.data.go.kr/B551011/KorService2/detailCommon2"
-                    + "?ServiceKey=" + apiKey
-                    + "&MobileOS=ETC&MobileApp=AppTest"
+                    + "?MobileOS=ETC&MobileApp=AppTest"
+                    + "&ServiceKey=" + encodedKey
                     + "&contentId=" + contentId;
 
             RestTemplate restTemplate = new RestTemplate();
@@ -74,6 +81,8 @@ public class ShareBoardViewService {
                 map.put("homepage",getTag(item, "homepage"));
                 map.put("day", day);
                 map.put("dayNum", dayNum);
+                map.put("typeId", getTag(item,"contenttypeid"));
+                map.put("price", TourAreaService.getPoiPrice(getTag(item, "contentid"), Integer.parseInt(getTag(item,"contenttypeid")), false));
                 resultMap.add(map);
             }
        
@@ -99,6 +108,7 @@ public class ShareBoardViewService {
             if (contentId == null || contentId.isEmpty()) continue;
 
             int dayNum = share.getDayNum();
+            dayMap.computeIfAbsent(dayNum, k -> new ArrayList<>());
             String reserveDate = share.getDay();
 
             List<HashMap<String, Object>> infoList = new ArrayList<>();
@@ -120,7 +130,8 @@ public class ShareBoardViewService {
                     }
                 }
             }
-
+            System.out.println("contentId = " + contentId);
+            System.out.println("reserveDate = " + reserveDate);
             // 최대 재시도 후에도 실패하면 경고 출력하고 빈 리스트 처리
             if (!success) {
                 infoList = new ArrayList<>();
@@ -140,6 +151,7 @@ public class ShareBoardViewService {
                 dayMap.computeIfAbsent(dayNum, k -> new ArrayList<>()).add(infoMap);
             }
         }
+        
 
         return dayMap;
     }
@@ -149,10 +161,10 @@ public class ShareBoardViewService {
 		// TODO Auto-generated method stub
 		List<HashMap<String, Object>> resultMap = new ArrayList<>();
 		
-		
+		String encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
 		
 			String url = "https://apis.data.go.kr/B551011/KorService2/detailCommon2"
-                    + "?ServiceKey=" + apiKey
+                    + "?ServiceKey=" + encodedKey
                     + "&MobileOS=ETC&MobileApp=AppTest"
                     + "&contentId=" + contentId;
 
@@ -178,7 +190,8 @@ public class ShareBoardViewService {
                 map.put("contentid", getTag(item, "contentid"));
                 map.put("tel", getTag(item, "tel"));
                 map.put("overview",getTag(item, "overview"));
-                map.put("homepage",getTag(item, "homepage"));           
+                map.put("homepage",getTag(item, "homepage"));  
+                
             }
             HashMap<String, Object> paramMap = new HashMap<>();
             paramMap.put("contentId", contentId);
@@ -243,11 +256,12 @@ public class ShareBoardViewService {
 
     // API로 이미지 가져오기
     public String getFirstImage(String contentId) throws Exception {
+    	String encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
         String url = "https://apis.data.go.kr/B551011/KorService2/detailCommon2"
-                + "?ServiceKey=" + apiKey
+                + "?ServiceKey=" + encodedKey
                 + "&MobileOS=ETC&MobileApp=AppTest"
                 + "&contentId=" + contentId;
-
+        System.out.println(url);
         RestTemplate restTemplate = new RestTemplate();
         byte[] bytes = restTemplate.getForObject(url, byte[].class);
         String xmlResponse = new String(bytes);
@@ -263,8 +277,15 @@ public class ShareBoardViewService {
         return getTag(item, "firstimage");
     }   
 
-   
-    
+    public HashMap<String, Object> getResActive(HashMap<String, Object> map) {
+    	HashMap<String, Object> resultMap = new HashMap<String, Object>();
+    	List<Share> List = ShareBoardMapper.shareActive(map);
+    	resultMap.put("list", List);
+    	
+    	 Map<Integer, List<HashMap<String, Object>>> allInfoMap = fetchAllInfo(map);
+    	  resultMap.put("detail", allInfoMap);
+    	return resultMap;
+    }    
 
 	
 }

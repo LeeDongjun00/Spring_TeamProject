@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>내 정보 수정</title>
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="/css/main-style.css">
@@ -234,6 +234,12 @@
                     <button class="checkButton" @click="fnAddr">검색</button>
                 </div>
                 <div class="infoBanner2">
+                    프로필 사진 변경
+                    <br>
+                    <i class="fa-solid fa-file-image" style="margin-right: 5px;"></i>
+                    <input type="file" id="file1" name="file1" accept=".jpg, .png"> 
+                </div>
+                <div class="infoBanner2">
                     가입일
                     <br>
                     <i class="fa-solid fa-calendar"></i>
@@ -303,7 +309,7 @@
                     type: "POST",
                     data: param,
                     success: function (data) {
-                        console.log(data);
+                        //console.log(data);
                         self.info = data.info;
 
                         self.name = data.info.name;
@@ -345,7 +351,7 @@
                     type: "POST",
                     data: param,
                     success: function (data) {
-                        console.log(data);
+                        //console.log(data);
                         if(data.res.statusCode == "2000"){
                             alert("문자 전송 완료");
                             self.certifiStr = data.ranStr;
@@ -402,14 +408,74 @@
                     type: "POST",
                     data: param,
                     success: function (data) {
-                        console.log(data);
+                        //console.log(data);
                         if(data.result == "success"){
+                            self.fnProfilePath();
                             alert(data.msg);
                             location.href="/myInfo.do";            
                         } else {
                             alert(data.msg);
                         }
                     }
+                });
+            },
+
+            fnProfileUpload(form){
+                var self = this;
+                $.ajax({
+                    url : "/member/profileUpload.dox", 
+                    type : "POST", 
+                    processData : false, 
+                    contentType : false, 
+                    data : form, 
+                    success:function(data) { 
+                        //console.log(data);
+                    }	           
+                });
+            },
+
+            fnProfilePath : function () {
+                let self = this;
+                let param = {
+                    userId : self.sessionId
+                };
+                $.ajax({
+                    url:"/member/profilePath.dox",
+                    dataType: "json",
+                    type: "POST",
+                    data: param,
+                    success: function (data){
+                        //console.log(data.info);
+                        if(data.info.storUrl == null){
+                            let form = new FormData();
+                            form.append( "file1",  $("#file1")[0].files[0] );
+                            form.append( "userId",  self.sessionId);
+                            self.fnProfileUpload(form);
+                            // self.profileImgPath = data.info.storUrl;
+                            // console.log("no");
+                        } else {
+                            // alert(data.info.mediaId); // mediaId 나오는거 확인 완
+                            let form = new FormData();
+                            form.append( "file1",  $("#file1")[0].files[0] );
+                            form.append( "userId",  self.sessionId);
+                            form.append( "mediaId",  data.info.mediaId);
+                            self.fnProfileUpdate(form);
+                        }
+                    }
+                })
+            },
+            
+            fnProfileUpdate(form){
+                var self = this;
+                $.ajax({
+                    url : "/member/profileUpdate.dox", 
+                    type : "POST", 
+                    processData : false, 
+                    contentType : false, 
+                    data : form, 
+                    success:function(data) { 
+                        //console.log(data);
+                    }	           
                 });
             },
 

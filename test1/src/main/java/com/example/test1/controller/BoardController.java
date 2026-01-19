@@ -30,6 +30,11 @@ public class BoardController {
 
         return "/board-list";
     }
+	@RequestMapping("/modalBoardList.do") 
+    public String modalBoardList(Model model) throws Exception{ 
+
+        return "/board-list-modal";
+    }
 	@RequestMapping("/board-view.do") 
 	
     public String view(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map) throws Exception{ 
@@ -300,6 +305,13 @@ public class BoardController {
 	@ResponseBody
 	public String bestList(@RequestParam HashMap<String, Object> map) throws Exception {
 	    HashMap<String, Object> resultMap = boardService.bestList(map);
+	    return new Gson().toJson(resultMap);
+	}
+	
+	@RequestMapping(value = "/boardFav.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String fav(@RequestParam HashMap<String, Object> map) throws Exception {
+	    HashMap<String, Object> resultMap = boardService.boardFav(map);
 	    return new Gson().toJson(resultMap);
 	}
 	

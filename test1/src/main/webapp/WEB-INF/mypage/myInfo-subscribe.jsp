@@ -71,7 +71,7 @@
                 <br>
             </div>
             <div class="subField">
-                
+                <!-- ,{{status}} -->
                 <div class="title">
                     <div>
                         <span>
@@ -114,7 +114,9 @@
         data() {
             return {
                 // 변수 - (key : value)
-                userId : ""
+                userId : "",
+                status : "",
+                subsDay : 30
             };
         },
         methods: {
@@ -132,7 +134,7 @@
 			   	      if (rsp.success) {
 			   	        // 결제 성공 시
 						// alert("성공");
-						console.log(rsp);
+						//console.log(rsp);
                         // self.imp_uid = rsp.imp_uid;
                         // self.paid_amount = rsp.paid_amount;
                         // self.fnPayHistory();
@@ -151,10 +153,13 @@
                 //부모창에서 보낸 정보가 event의 형태로 받아짐
                 let self=this;
                 // console.log(event);
+                // console.log(event);
                 if (event.origin !== window.location.origin) return; // 보안 체크
                     //같은 도메인이 아니면 실행 X
                 self.userId = event.data.userId;
-                console.log("받은 세션:", self.userId);
+                self.status = event.data.status;
+                //console.log("받은 세션:", self.userId);
+                //console.log(self.status);
             },
 
             fnCancel : function () {
@@ -164,7 +169,9 @@
             fnStatusUp : function () {
                 let self = this;
                 let param = {
-                    userId : self.userId
+                    userId : self.userId,
+                    status : self.status,
+                    subsDay : self.subsDay
                 };
                 $.ajax({
                     url: "/mypage/statusUp.dox",
@@ -184,6 +191,22 @@
                             alert(data.msg);
                             return;
                         }
+                    }
+                });
+            },
+            
+            fnMemberInfo : function () {
+                let self = this;
+                let param = {
+                    userId : self.userId
+                };
+                $.ajax({
+                    url: "/member/findId.dox",
+                    dataType: "json",
+                    type: "POST",
+                    data: param,
+                    success: function (data) {
+                        //console.log(data);
                     }
                 });
             }

@@ -300,9 +300,10 @@
   </head>
 
   <body>
+    
+    <!-- 헤더 -->
+    <%@ include file="components/header.jsp" %>
     <div id="app">
-      <!-- 헤더 -->
-      <%@ include file="components/header.jsp" %>
 
       <!-- 검색/필터 -->
       <section class="board-filter">
@@ -323,7 +324,6 @@
             <option value="10">10개씩</option>
             <option value="15">15개씩</option>
           </select>
-
           <select v-model="type" @change="fnList" title="분류">
             <option value="">전체 분류</option>
             <option value="N">공지사항</option>
@@ -334,7 +334,8 @@
 
           <select v-model="order" @change="fnList" title="정렬">
             <option value="num">번호순</option>
-            <option value="title">제목순</option>
+            <!-- <option value="title">제목순</option> -->
+            <option value="time">최신순</option>
             <option value="cnt">조회수</option>
           </select>
         </div>
@@ -355,7 +356,7 @@
         <tbody>
           <tr v-for="item in list" :key="item.boardNo" @click="fnView(item.boardNo)">
             <td class="col-num">{{ item.boardNo }}</td>
-            <td class="col-author">{{ item.userId }}</td>
+            <td class="col-author">{{ item.nickname }}</td>
             <td>
               <span class="type-badge" :class="badgeClass(item.type)">{{ typeLabel(item.type) }}</span>
               <a href="javascript:;">{{ item.title }}</a>
@@ -404,7 +405,7 @@
             list: [],
             searchOption: "all",
             type: "",
-            order: "num",
+            order: "time",
             keyword: "",
             sessionId: "${sessionId}",
             page: 1,
@@ -414,6 +415,7 @@
             pageGroupStart: 1,
             pageGroupEnd: 10,
             num: "",
+            nickName: "${nickName}"
           };
         },
         methods: {
@@ -421,27 +423,31 @@
             if (t === "N ") return "type-N";
             if (t === "F ") return "type-F";
             if (t === "Q ") return "type-Q";
-            if (t === "SQ ") return "type-SQ";
+            if (t === "SQ") return "type-SQ";
             return "";
           },
           typeLabel(t) {
             if (t === "N ") return "공지";
             if (t === "F ") return "자유";
             if (t === "Q ") return "질문";
-            if (t === "SQ ") return "문의";
+            if (t === "SQ") return "문의";
             return "일반";
           },
           fnList() {
             const self = this;
             const param = {
-              userId: self.userId,
+              userId : self.userId,
               type: self.type,
               order: self.order,
               keyword: self.keyword,
               searchOption: self.searchOption,
               pageSize: self.pageSize,
               page: (self.page - 1) * self.pageSize,
+              nickname: self.nickname
+              
             };
+            //console.log(self.keyword);
+            
             $.ajax({
               url: "board-list.dox",
               dataType: "json",
