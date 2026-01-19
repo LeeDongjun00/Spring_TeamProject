@@ -1,5 +1,8 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="true" %> <% String resNum =
-String.valueOf(request.getAttribute("resNum")); %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="true" %>
+<% 
+    String resNum = String.valueOf(request.getAttribute("resNum")); 
+    // userId 선언부 삭제됨 (header.jsp와 충돌 방지)
+%>
 <!DOCTYPE html>
 <html lang="ko">
   <head>
@@ -59,161 +62,158 @@ String.valueOf(request.getAttribute("resNum")); %>
 
 
       /* ✅ 배경 오버레이  */
-.popup-overlay{
-  position: fixed;
-  top:0; left:0; right:0; bottom:0;
-  background: rgba(0,0,0,0.6);
-  z-index: 999;   /* 팝업(1000)보다 1 낮게 */
-  display:none;
-}
+      .popup-overlay{
+        position: fixed;
+        top:0; left:0; right:0; bottom:0;
+        background: rgba(0,0,0,0.6);
+        z-index: 999;   /* 팝업(1000)보다 1 낮게 */
+        display:none;
+      }
 
-/* ✅ 팝업이 오버레이 위로 오게 */
-.sub-popup{
-  z-index: 1000;
-}
-  /* ================================
-   ✅ 구독 혜택 팝업 스타일
-================================ */
-.sub-popup{
-  position: fixed;
-  top: 220px;
-  left: 50px;
-  width: 520px;
-  max-width: calc(100vw - 24px);
-  background: #fff;
-  border: 1px solid rgba(0,0,0,.10);
-  border-radius: 14px;
-  padding: 22px 22px 16px;
-  z-index: 1000;
-  box-shadow: 0 18px 45px rgba(0,0,0,.18);
-}
+      /* ✅ 팝업이 오버레이 위로 오게 */
+      .sub-popup{
+        z-index: 1000;
+      }
+      /* ================================
+           ✅ 구독 혜택 팝업 스타일
+      ================================ */
+      .sub-popup{
+        position: fixed;
+        top: 220px;
+        left: 50px;
+        width: 520px;
+        max-width: calc(100vw - 24px);
+        background: #fff;
+        border: 1px solid rgba(0,0,0,.10);
+        border-radius: 14px;
+        padding: 22px 22px 16px;
+        z-index: 1000;
+        box-shadow: 0 18px 45px rgba(0,0,0,.18);
+      }
 
-.sub-popup__x{
-  position:absolute;
-  top:10px;
-  right:12px;
-  width:34px;
-  height:34px;
-  border:none;
-  background:transparent;
-  font-size:26px;
-  line-height:34px;
-  cursor:pointer;
-  color:#111;
-  opacity:.65;
-}
-.sub-popup__x:hover{ opacity:1; }
+      .sub-popup__x{
+        position:absolute;
+        top:10px;
+        right:12px;
+        width:34px;
+        height:34px;
+        border:none;
+        background:transparent;
+        font-size:26px;
+        line-height:34px;
+        cursor:pointer;
+        color:#111;
+        opacity:.65;
+      }
+      .sub-popup__x:hover{ opacity:1; }
 
-.sub-popup__title{
-  text-align: center;
-  margin: 0 0 30px 10px;
-  font-size: 44px;
-  line-height: 1.05;
-  letter-spacing: -0.5px;
-}
+      .sub-popup__title{
+        text-align: center;
+        margin: 0 0 30px 10px;
+        font-size: 44px;
+        line-height: 1.05;
+        letter-spacing: -0.5px;
+      }
 
-.sub-popup__desc{
-  text-align: center;
-  font-size: 16px;
-  color:#222;
-  line-height:1.5;
-  margin-bottom: 16px;
-}
+      .sub-popup__desc{
+        text-align: center;
+        font-size: 16px;
+        color:#222;
+        line-height:1.5;
+        margin-bottom: 16px;
+      }
 
-.sub-popup__grid{
-  display:flex;
-  flex-direction:column;
-  gap: 16px;
-}
+      .sub-popup__grid{
+        display:flex;
+        flex-direction:column;
+        gap: 16px;
+      }
 
-.sub-popup__row{
-  display:grid;
-  grid-template-columns: 1fr 30px 1fr;
-  align-items:center;
-  gap: 10px;
-}
+      .sub-popup__row{
+        display:grid;
+        grid-template-columns: 1fr 30px 1fr;
+        align-items:center;
+        gap: 10px;
+      }
 
-.sub-popup__card{
-  margin:0;
-  background:#fff;
-  border: 1px solid rgba(0,0,0,.08);
-  border-radius: 8px;
-  overflow:hidden;
-  min-height: 120px;
-  display:flex;
-  flex-direction:column;
-}
+      .sub-popup__card{
+        margin:0;
+        background:#fff;
+        border: 1px solid rgba(0,0,0,.08);
+        border-radius: 8px;
+        overflow:hidden;
+        min-height: 120px;
+        display:flex;
+        flex-direction:column;
+      }
 
-.sub-popup__card img{
-  width:100%;
-  height: 150px;
-  object-fit: cover;
-  background:#f3f4f6;
-  display:block;
-}
+      .sub-popup__card img{
+        width:100%;
+        height: 150px;
+        object-fit: cover;
+        background:#f3f4f6;
+        display:block;
+      }
 
-.sub-popup__arrow{
-  text-align:center;
-  font-size: 26px;
-  font-weight: 700;
-  color:#111;
-  opacity:.7;
-}
+      .sub-popup__arrow{
+        text-align:center;
+        font-size: 26px;
+        font-weight: 700;
+        color:#111;
+        opacity:.7;
+      }
 
-.sub-popup__cap{
-  padding: 10px 10px 12px;
-  text-align:center;
-  font-size: 16px;
-  font-weight: 700;
-  color:#111;
-}
+      .sub-popup__cap{
+        padding: 10px 10px 12px;
+        text-align:center;
+        font-size: 16px;
+        font-weight: 700;
+        color:#111;
+      }
 
-.sub-popup__hr{
-  border:none;
-  border-top: 1px solid rgba(0,0,0,.10);
-  margin: 14px 0 12px;
-}
+      .sub-popup__hr{
+        border:none;
+        border-top: 1px solid rgba(0,0,0,.10);
+        margin: 14px 0 12px;
+      }
 
-.sub-popup__footer{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap: 10px;
-}
+      .sub-popup__footer{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap: 10px;
+      }
 
-.sub-popup__check{
-  font-size: 14px;
-  color:#111;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
+      .sub-popup__check{
+        font-size: 14px;
+        color:#111;
+        display:flex;
+        align-items:center;
+        gap:8px;
+      }
 
-.sub-popup__btn{
-  border:none;
-  background:#0ea5e9;
-  color:#fff;
-  font-weight:700;
-  border-radius: 8px;
-  padding: 8px 14px;
-  cursor:pointer;
-}
-.sub-popup__btn:hover{ opacity:.92; }
+      .sub-popup__btn{
+        border:none;
+        background:#0ea5e9;
+        color:#fff;
+        font-weight:700;
+        border-radius: 8px;
+        padding: 8px 14px;
+        cursor:pointer;
+      }
+      .sub-popup__btn:hover{ opacity:.92; }
 
-@media (max-width: 560px){
-  .sub-popup{
-    left: 12px;
-    right: 12px;
-    width: auto;
-    top: 12px;
-  }
-  .sub-popup__title{ font-size: 34px; }
-  .sub-popup__row{ grid-template-columns: 1fr 26px 1fr; }
-  .sub-popup__card img{ height: 120px; }
-}
-
-
-
+      @media (max-width: 560px){
+        .sub-popup{
+          left: 12px;
+          right: 12px;
+          width: auto;
+          top: 12px;
+        }
+        .sub-popup__title{ font-size: 34px; }
+        .sub-popup__row{ grid-template-columns: 1fr 26px 1fr; }
+        .sub-popup__card img{ height: 120px; }
+      }
     </style>
   </head>
 
@@ -414,11 +414,6 @@ String.valueOf(request.getAttribute("resNum")); %>
             <button type="button" :class="['tab-btn', { active: activeTab === 39 }]" @click="setActiveTab(39)">
               <i class="fa-solid fa-utensils"></i> 식당 ({{ countForTab(39) }})
             </button>
-            <%-- [삭제] 카페 탭 제거 (typeId 40) --%> <%--
-            <button type="button" :class="['tab-btn', { active: activeTab === 40 }]" @click="setActiveTab(40)">
-              <i class="fa-solid fa-mug-hot"></i> 카페 ({{ countForTab(40) }})
-            </button>
-            --%>
           </div>
 
           <div id="map-recommend" class="map-recommend-area"></div>
@@ -443,7 +438,6 @@ String.valueOf(request.getAttribute("resNum")); %>
               </span>
             </div>
             <div class="budget-status-item">
-              <%-- 식당/카페 예산을 식당 예산으로 변경 --%>
               <span class="label">식당 예산</span>
               <span :class="['amount', { over: spentFood > foodBudgetLimit }]">
                 <span class="current">{{ spentFood.toLocaleString() }}원</span> /
@@ -483,7 +477,7 @@ String.valueOf(request.getAttribute("resNum")); %>
                   >
                     <span>
                       {{ poi.title || "이름 없음" }}
-                      <%-- [수정] 카페 표시 로직 제거 (typeId 40) --%> ({{ poi.typeId === 12 ? "관광" : poi.typeId === 32 ? "숙박" : "식당" }})
+                      ({{ poi.typeId === 12 ? "관광" : poi.typeId === 32 ? "숙박" : "식당" }})
                       <span v-if="poi.price > 0" style="color: #64748b; font-size: 0.9em; margin-left: 5px">
                         - {{ poi.price.toLocaleString() }}원
                       </span>
@@ -536,64 +530,56 @@ String.valueOf(request.getAttribute("resNum")); %>
     <script src="<%= request.getContextPath() %>/js/reservation-pie.js"></script>
     <script src="<%= request.getContextPath() %>/js/reservation-calendar.js"></script>
 
-<!-- ================================
-     ✅ 구독 혜택 팝업 (7일간 숨김)
-================================ -->
-<div id="popup-overlay" class="popup-overlay" style="display:none;"></div>
-<div id="ad-popup" class="sub-popup" style="display:none;">
-  <button class="sub-popup__x" type="button" onclick="closePopup()" aria-label="닫기">×</button>
+    <div id="popup-overlay" class="popup-overlay" style="display:none;"></div>
+    <div id="ad-popup" class="sub-popup" style="display:none;">
+      <button class="sub-popup__x" type="button" onclick="closePopup()" aria-label="닫기">×</button>
 
-  <h2 class="sub-popup__title">구독 혜택</h2>
+      <h2 class="sub-popup__title">구독 혜택</h2>
 
-  <div class="sub-popup__desc">
-    <div>여행하기 예산배분 잠금 활성화</div>
-    <div>일1회 경로 생성 → 무제한 이용 가능</div>
-  </div>
+      <div class="sub-popup__desc">
+        <div>여행하기 예산배분 잠금 활성화</div>
+        <div>일1회 경로 생성 → 무제한 이용 가능</div>
+      </div>
 
-  <div class="sub-popup__grid">
-    <!-- ✅ Row 1: 예산 배분 잠금 → 해제 -->
-    <div class="sub-popup__row">
-      <figure class="sub-popup__card">
-        <img src="/img/ad/ad1.PNG" alt="예산배분 잠금 상태" />
-      </figure>
+      <div class="sub-popup__grid">
+        <div class="sub-popup__row">
+          <figure class="sub-popup__card">
+            <img src="/img/ad/ad1.PNG" alt="예산배분 잠금 상태" />
+          </figure>
 
-      <div class="sub-popup__arrow">→</div>
+          <div class="sub-popup__arrow">→</div>
 
-      <figure class="sub-popup__card">
-        <img src="/img/ad/ad2.PNG" alt="예산배분 무제한 상태" />
-      </figure>
+          <figure class="sub-popup__card">
+            <img src="/img/ad/ad2.PNG" alt="예산배분 무제한 상태" />
+          </figure>
+        </div>
+
+        <div class="sub-popup__row">
+          <figure class="sub-popup__card">
+            <img src="/img/ad/ad3.PNG" alt="차량 경로 보기 1회" />
+            <figcaption class="sub-popup__cap">차량 경로 보기 일 1회</figcaption>
+          </figure>
+
+          <div class="sub-popup__arrow">→</div>
+
+          <figure class="sub-popup__card">
+            <img src="/img/ad/ad3.PNG" alt="무제한 이용 가능" />
+            <figcaption class="sub-popup__cap">무제한 이용 가능</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <hr class="sub-popup__hr" />
+
+      <div class="sub-popup__footer">
+        <label class="sub-popup__check">
+          <input type="checkbox" id="today-check" />
+          7일 동안 보지 않기
+        </label>
+
+        <button class="sub-popup__btn" type="button" onclick="closePopup()">닫기</button>
+      </div>
     </div>
-
-    <!-- ✅ Row 2: 경로 보기 1회 → 무제한 -->
-    <div class="sub-popup__row">
-      <figure class="sub-popup__card">
-        <img src="/img/ad/ad3.PNG" alt="차량 경로 보기 1회" />
-        <figcaption class="sub-popup__cap">차량 경로 보기 일 1회</figcaption>
-      </figure>
-
-      <div class="sub-popup__arrow">→</div>
-
-      <figure class="sub-popup__card">
-        <img src="/img/ad/ad3.PNG" alt="무제한 이용 가능" />
-        <figcaption class="sub-popup__cap">무제한 이용 가능</figcaption>
-      </figure>
-    </div>
-  </div>
-
-  <hr class="sub-popup__hr" />
-
-  <div class="sub-popup__footer">
-    <label class="sub-popup__check">
-      <input type="checkbox" id="today-check" />
-      7일 동안 보지 않기
-    </label>
-
-    <button class="sub-popup__btn" type="button" onclick="closePopup()">닫기</button>
-  </div>
-</div>
-
-
-
 
     <%@ include file="components/footer.jsp" %>
 
@@ -620,8 +606,12 @@ String.valueOf(request.getAttribute("resNum")); %>
             currentSido: "",
             currentSigungu: "",
             selectedRegions: [],
-            budget: null,
-            headCount: null,
+
+            /* ✅ [수정] 컨트롤러에서 넘어온 값으로 초기화 (값이 없으면 0) */
+            /* isELIgnored="true" 이므로 스크립틀릿 사용 */
+            budget: <%= request.getAttribute("budget") != null ? request.getAttribute("budget") : 0 %>,
+            headCount: <%= request.getAttribute("headCount") != null ? request.getAttribute("headCount") : 0 %>,
+
             spentAccom: 0,
             spentFood: 0,
             spentActivity: 0,
@@ -653,7 +643,9 @@ String.valueOf(request.getAttribute("resNum")); %>
             positionsByDay: {},
             selectedDay: 1,
             themes: "",
-            sessionId: "<%= userId %>",
+            
+            /* ✅ [수정] 충돌 방지를 위해 session에서 직접 가져오기 */
+            sessionId: "<%= session.getAttribute("sessionId") != null ? session.getAttribute("sessionId") : "" %>",
           };
         },
 
@@ -971,7 +963,7 @@ String.valueOf(request.getAttribute("resNum")); %>
                 data: JSON.stringify(saveParam),
               });
 
-              //"resNum"으로 반환하므로 키를 resNum으로 변경합니다.
+              // "resNum"으로 반환하므로 키를 resNum으로 변경합니다.
               const resNum = saveResponse.resNum;
 
               if (resNum) {
