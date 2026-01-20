@@ -1,137 +1,156 @@
-
-![메인페이지](https://github.com/hee8144/image/blob/main/main.png)
----
-<a name="top"></a>
-
 # 🌏 I'm Ready
+> **테마 기반 한국 여행 추천 · 코스 생성 · 예약 통합 플랫폼**
 
-> ** 한국 여행 추천 코스 플랫폼**
-
----
-<a name="toc"></a>
-## 📚 목차
-
-1. [프로젝트 소개](#-프로젝트-소개)
-2. [개발 기간](#-개발-기간)
-3. [팀원 구성](#-팀원-구성)
-4. [사용 기술](#%EF%B8%8F-사용-기술)
-5. [주요 기능](#-주요-기능)
-6. [역할 분담](#-역할-분담)
-7. [발표 PPT](#-발표-ppt)
-8. [시연 영상](#-시연-영상)
+![메인페이지](./main.png)
 
 ---
 
-## 💡 프로젝트 소개
+## 📋 프로젝트 개요
+**IMREADY**는 사용자가 선택한 **여행 테마·지역·기간·예산**을 기반으로  
+여행 코스를 추천하고, 직접 커스터마이징하여 **예약·결제·리뷰까지 이어지는**  
+통합 여행 추천 플랫폼입니다.
 
-I'm Ready는 
-
-- 고객은 원하는 테마, 기간 , 예산, 지역 을 자유롭게 선택하여 자유롭게 코스를 짤수있습니다.  
-
----
-
-## 🗓 개발 기간
-
-| 구간 | 기간 | 주요 작업 |
-|------|------|-----------|
-| 기획 | 2025.10.21 ~ 10.27 | 컨셉 설정, DB 설계, 회의 |
-| 개발 | 2025.10.27 ~ 11.10 | 기능 구현, 페이지 개발 |
-| 개선 | 2025.11.11 ~  | 보완 및 리팩터링 |
+단순한 여행지 나열이 아닌,  
+**선택 → 추천 → 코스 생성 → 예약 → 후기**로 이어지는  
+하나의 완성된 여행 경험 흐름을 제공하는 것을 목표로 합니다.
 
 ---
 
-## 👨‍👩‍👦‍👦 팀원 구성
+## 📌 프로젝트 소개
+사용자는  
+- 가족 / 연인 / 친구 / 혼행 / 기념일 / 힐링 등 **테마를 중복 선택**하고  
+- 지역, 일정, 예산 조건을 입력하여  
+- 추천된 숙박·관광·식당 POI를 조합해 **나만의 여행 코스(패키지)**를 생성할 수 있습니다.
 
-| 이름 | GitHub |
-|------|--------|
-| 이동준 | [jun-000224](https://github.com/jun-000224) |
-| 박충현 | [3y5adf](https://github.com/3y5adf) |
-| 하송화 | [hasonghwa](https://github.com/hasonghwa) |
-| 김대근 | [](https://github.com/) |
-| 유희연 | [hee8144](https://github.com/hee8144) |
+추천 로직은 **테마별 가중치 기반 점수 계산 방식**을 사용하며,  
+외부 관광 데이터는 **온디맨드 API 방식**으로 조회하여  
+불필요한 대용량 데이터 적재 없이 효율적인 구조로 설계되었습니다.
 
----
-
-## 🛠️ 사용 기술
-
-> 백엔드, 프론트엔드, DB, API 
-
-![Spring Boot](https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![Java](https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=Java&logoColor=white)
-
-![Vue.js](https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=Vue.js&logoColor=white)
-![JSP](https://img.shields.io/badge/JSP-007396?style=for-the-badge&logo=java&logoColor=white)
-![jQuery](https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jQuery&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=CSS3&logoColor=white)
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=HTML5&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=JavaScript&logoColor=black)
-![AJAX](https://img.shields.io/badge/AJAX-000000?style=for-the-badge&logo=javascript&logoColor=white)
-
-![Oracle](https://img.shields.io/badge/Oracle-F80000?style=for-the-badge&logo=oracle&logoColor=white)
-
-![RESTful API](https://img.shields.io/badge/RESTful-API-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+여행 완료 후에는 **리뷰 작성 → 포인트 적립 → 커뮤니티 공유**까지 이어지며,  
+프리미엄 유저에게는 **코스 복제·커스터마이징 기능**을 제공하여  
+차별화된 사용자 경험을 구현했습니다.
 
 ---
 
-## 📄 주요 기능
+## ⏳ 개발 기간
+🗓 **총 개발 기간:** 2025.10.21 ~ 2025.11.10
 
-- **회원가입/로그인**: 전화번호 인증, 소셜 로그인(Kakao)
-- **상품 관련**:  별점 기능, 코스추천 기능
-- **커뮤니티**: 글 작성 , 수정 및 삭제
-- **마이페이지**: 내정보수정 , 예약확인 , 멤버쉽관리, 찜리스트 , 나의작성글.댓글 확인
-- **결제 시스템**: 해외 결제(PayPal, 카드 등)
-- **외부 API**:
-  - 한국관광공사 OPEN API
-  - 카카오 맵 API
-  - 카카오 NAVI APi
-  - portOne API
-  - 카카오 로그인 API
-  - SMS API
+| 구분 | 기간 | 주요 내용 |
+|------|------|----------|
+| 기획 | 10.21 ~ 10.27 | 아이디어 정의, 기능 기획, DB 설계 |
+| 개발 | 10.27 ~ 11.10 | 기능 구현, 화면 개발 |
+| 개선 | 11.11 ~ | 리팩터링 및 기능 보완 |
+
+---
+
+## 😀 팀원 구성
+| 이름 | 역할 | GitHub |
+|------|------|--------|
+| 이동준 | PM / 여행 추천·코스 생성 / 메인 페이지 | https://github.com/jun-000224 |
+| 박충현 | 인증·결제·회원 관리 / 관리자 페이지 | https://github.com/3y5adf |
+| 하송화 | 커뮤니티 페이지 / 공지 페이지 | https://github.com/hasonghwa |
+| 유희연 | 리뷰·찜·예약 조회 / 메인 페이지 | https://github.com/hee8144 |
+
+---
+
+## 🖥️ 기술 스택
+| 구분 | 기술 |
+|------|------|
+| Backend | Java, Spring Boot |
+| Frontend | JSP, Vue.js, jQuery, HTML5, CSS3, JavaScript |
+| Database | Oracle |
+| API | 한국관광공사 OPEN API, Kakao Map / Navi / Login, PortOne, SMS |
+| Payment | PayPal, 카드 결제 |
+| Collaboration | GitHub, Notion, Figma |
+
+---
+
+## 🖍 차별점
+- **테마 가중치 기반 추천 로직**  
+  단순 필터링이 아닌 속성 점수 계산을 통한 우선순위 추천
+- **온디맨드 API 설계**  
+  CONTENT_ID 기반 최소 데이터 저장으로 성능·유지보수 고려
+- **실제 예약 흐름 연계**  
+  코스 생성 → 결제 → 리뷰 → 포인트 적립까지 연결
+- **프리미엄 유저 차등 경험**  
+  코스 복제·커스터마이징 기능 제공
+
+---
+
+## 📱 화면 구성
+- 로그인 / 회원가입
+- 메인(테마 선택)
+- 추천 결과
+- 코스 생성
+- 예약 / 결제
+- 리뷰 게시판
+- 커뮤니티
+- 마이페이지
+- 관리자 페이지
+
+---
+
+## 📽 주요 기능
+
+### 1. 회원 관리
+- 회원가입 / 로그인
+- 카카오 소셜 로그인
+- 전화번호 인증(SMS)
+- 마이페이지 정보 수정 및 탈퇴
+
+### 2. 여행 추천 & 코스 생성
+- 테마 중복 선택
+- 지역 / 일정 / 예산 필터
+- 테마 가중치 기반 POI 추천
+- 지도 기반 경로 시각화
+- 예상 이동 시간 계산
+
+### 3. 예약 & 결제
+- 코스 패키지 저장
+- 결제 상태 관리 (대기 / 완료 / 취소 / 완료)
+- 해외 결제(PayPal, 카드)
+
+### 4. 커뮤니티 & 리뷰
+- 질문 / 자유 / 공지 / 리뷰 게시판
+- 리뷰 작성 시 포인트 적립
+- 후기 좋아요 및 태그 필터링
+
+### 5. 관리자 기능
+- 유저 관리
+- 신고 게시글 처리
+- 문의 응답 관리
+
+---
+
+## 👨‍🔧 역할 분담 상세
+
+### 이동준 (PM)
+- 여행 추천·코스 생성 플로우 설계
+- 테마 가중치 기반 POI 추천 로직
+- 지도 시각화 및 예약·결제 연동
+- 메인 페이지
+
+### 박충현
+- 인증 및 회원 관리
+- 카카오 로그인 / 전화번호 인증
+- PortOne 결제 연동
+- 관리자 페이지
+
+### 하송화
+- 커뮤니티 / 공지 게시판
+- 게시글 CRUD 및 검색
+- 유저 및 게시글 관리
     
----
-
-## 👨‍🔧 역할 분담
-
-### 👤 이동준(PM)
-
-- **작업 페이지**: 일정 계획 페이지, POI 선택 및 경로 구성 페이지, 예약 정보 확인 및 일정 저장 페이지
-- **기능 구현**: 입력 기반 여행 계획 생성 및 관리, 예산 파이그래프 시각화, 테마 선택에 따른 POI 속성 가중치 계산 및 지도 시각화, 네비게이션 경로 및 예상 소요 시간 계산, 예산 조건 기반 결제 처리
-
----
-
-### 👤 박충현
-
-- **작업 페이지**: 로그인 , 회원가입 , 회원정보 수정 및 탈퇴 , 포인트 , 멤버쉽 , 프로필 관리
-- **기능 구현**: 카카오 api 로그인 , 전화번호 인증 , 프로필 이미지 업로드 및 업데이트 , portOne Api 결제
-
----
-
-### 👤 하송화 
-
-- **작업 페이지**: 커뮤니티 , 공지사항
-- **기능 구현**: 글 작성 및 수정 , 글삭제 , 댓글 , 검색 
-
----
-
-### 👤 김대근
-
-- **작업 페이지**: 마이페이지 , 헤더 , 푸터 , 관리자페이지 , 메인페이지
-- **기능 구현**: 신고된 게시글 관리 , 유저 관리 , 문의사항 답변 및 관리 , 메인페이지 지도 구현
-
-### 👤 유희연
-
-- **작업 페이지**: 후기게시판 , 예약확인,  찜리스트
-- **기능 구현**: 공공데이터 api 를 활용한 정보 제공, 후기 게시글 작성 및 수정 , 이미지 업로드 ,후기 좋아요 기능 및 태그 필터링 
-
-
+### 유희연
+- 후기 게시판 / 찜 리스트
+- 공공데이터 기반 정보 제공
+- 리뷰 좋아요 및 태그 필터링
+- 메인 페이지
 ---
 
 ## 📕 발표 PPT
-
-▶ [I'm Ready 발표 자료 보기]()
-
----
+▶ [IMREADY 발표 자료 보기]()
 
 ## 🎞 시연 영상
-
-▶ [I'm Ready 시연 영상 보기]()
+▶ [IMREADY 시연 영상 보기]()
+```
