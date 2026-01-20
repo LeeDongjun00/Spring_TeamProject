@@ -4,11 +4,12 @@
     data() {
       return {
         // Pie categories & state
+        // ✅ 색상 변경: 남색, 흐린파랑, 하늘색, 흰색에 가까운 푸른색
         categories: [
-          { key: 'etc',   label: '기타',         color: '#d1d5db' },
-          { key: 'accom', label: '숙박',         color: '#a3bffa' },
-          { key: 'food',  label: '식당',         color: '#f9a8d4' },
-          { key: 'act',   label: '체험 및 관광', color: '#86efac' }
+          { key: 'etc',   label: '기타',         color: '#f0f9ff' }, // 흰색에 가까운 푸른색
+          { key: 'accom', label: '숙박',         color: '#1e3a8a' }, // 남색 (Navy)
+          { key: 'food',  label: '식당',         color: '#60a5fa' }, // 흐린 파랑
+          { key: 'act',   label: '체험 및 관광', color: '#bae6fd' }  // 하늘색
         ],
         weights: [25, 25, 25, 25],
         // ✅ 잠금 상태 (체크박스용)
@@ -177,7 +178,8 @@
               ctx2d.save();
               ctx2d.setLineDash([4, 3]);
               ctx2d.lineWidth = 2;
-              ctx2d.strokeStyle = '#111827';
+              // 남색 배경일 땐 밝은 점선, 아니면 어두운 점선
+              ctx2d.strokeStyle = (this.categories[i].key === 'accom') ? 'rgba(255,255,255,0.5)' : '#111827';
               ctx2d.stroke();
               ctx2d.restore();
             }
@@ -200,13 +202,16 @@
 
           // middle labels
           ctx2d.save();
-          ctx2d.fillStyle = '#111827';
           ctx2d.font = 'bold 13px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
           for (let i = 0; i < this.weights.length; i++) {
             const mid = (angles[i].start + angles[i].end) / 2;
             const rr = (rO + rI) / 2;
             const tx = cx + rr * Math.cos(mid);
             const ty = cy + rr * Math.sin(mid);
+            
+            // ✅ 숙박(남색)일 경우 글자색 흰색, 나머지는 검은색
+            ctx2d.fillStyle = (this.categories[i].key === 'accom') ? '#ffffff' : '#111827';
+            
             ctx2d.textAlign = 'center';
             ctx2d.textBaseline = 'middle';
             ctx2d.fillText(this.weights[i] + '%', tx, ty);
