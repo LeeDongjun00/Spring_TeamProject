@@ -2,8 +2,6 @@
 <% 
     // request에서 resNum 가져오기
     String resNum = String.valueOf(request.getAttribute("resNum")); 
-    
-    // userId는 header.jsp에서 선언하므로 여기서는 선언하지 않음 (중복 방지)
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -35,13 +33,10 @@
 
     <style>
       /* CSS는 분리된 .css 파일을 사용 */
-      
-      /* ✅ 배경색 흰색으로 변경 */
       body {
         background-color: #ffffff;
       }
 
-      /* 하단 고정 버튼 스타일 */
       .page-title2 {
         font-size: 2.25rem;
         font-weight: 700;
@@ -68,14 +63,13 @@
         font-size: 1.1em;
       }
 
-      /* ✅ 추천 목록 생성 버튼 스타일 (달력 아래용) */
       .btn-generate {
         width: 100%;
         height: 56px;
         margin-top: 20px;
         font-size: 1.2rem;
         font-weight: 700;
-        background: #2c3e50; /* 혹은 브랜드 컬러 */
+        background: #2c3e50;
         color: white;
         border: none;
         border-radius: 8px;
@@ -88,8 +82,104 @@
         transform: translateY(-2px);
       }
 
+      /* ========================================= */
+      /* ✅ [복구 및 디자인 강화] 탭 버튼 스타일 */
+      /* 클래스명을 custom-tabs로 변경하여 충돌 방지 */
+      /* ========================================= */
+      .custom-tabs {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px; /* 버튼 사이 간격 */
+          margin-bottom: 15px;
+          margin-top: 10px;
+      }
+      
+      .custom-tab-btn {
+          padding: 8px 18px;
+          background-color: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 50px; /* 둥근 알약 모양 */
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 14px;
+          color: #64748b;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.2s ease-in-out;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      }
 
-      /* ✅ 배경 오버레이  */
+      .custom-tab-btn:hover {
+          background-color: #f1f5f9;
+          transform: translateY(-1px);
+      }
+
+      .custom-tab-btn.active {
+          background-color: #2c3e50; /* 선택 시 진한 남색 */
+          color: #ffffff;
+          border-color: #2c3e50;
+          box-shadow: 0 4px 6px -1px rgba(44, 62, 80, 0.3);
+      }
+
+      .custom-tab-btn i {
+          font-size: 1.1em;
+      }
+
+      /* 프리미엄 잠금 효과 */
+      .premium-lock-wrapper {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .premium-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #374151;
+        text-align: center;
+        border-radius: 12px;
+      }
+
+      .lock-icon-circle {
+        width: 60px;
+        height: 60px;
+        background: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 12px;
+      }
+
+      .lock-icon-circle i {
+        font-size: 24px;
+        color: #1e3a8a;
+      }
+
+      .premium-msg {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+      }
+
+      .premium-sub {
+        font-size: 0.85rem;
+        color: #6b7280;
+      }
+
+      /* 팝업 스타일 */
       .popup-overlay{
         position: fixed;
         top:0; left:0; right:0; bottom:0;
@@ -97,14 +187,6 @@
         z-index: 999;
         display:none;
       }
-
-      /* ✅ 팝업이 오버레이 위로 오게 */
-      .sub-popup{
-        z-index: 1000;
-      }
-      /* ================================
-           ✅ 구독 혜택 팝업 스타일
-      ================================ */
       .sub-popup{
         position: fixed;
         top: 220px;
@@ -118,7 +200,6 @@
         z-index: 1000;
         box-shadow: 0 18px 45px rgba(0,0,0,.18);
       }
-
       .sub-popup__x{
         position:absolute;
         top:10px;
@@ -134,7 +215,6 @@
         opacity:.65;
       }
       .sub-popup__x:hover{ opacity:1; }
-
       .sub-popup__title{
         text-align: center;
         margin: 0 0 30px 10px;
@@ -142,7 +222,6 @@
         line-height: 1.05;
         letter-spacing: -0.5px;
       }
-
       .sub-popup__desc{
         text-align: center;
         font-size: 16px;
@@ -150,20 +229,17 @@
         line-height:1.5;
         margin-bottom: 16px;
       }
-
       .sub-popup__grid{
         display:flex;
         flex-direction:column;
         gap: 16px;
       }
-
       .sub-popup__row{
         display:grid;
         grid-template-columns: 1fr 30px 1fr;
         align-items:center;
         gap: 10px;
       }
-
       .sub-popup__card{
         margin:0;
         background:#fff;
@@ -174,7 +250,6 @@
         display:flex;
         flex-direction:column;
       }
-
       .sub-popup__card img{
         width:100%;
         height: 150px;
@@ -182,7 +257,6 @@
         background:#f3f4f6;
         display:block;
       }
-
       .sub-popup__arrow{
         text-align:center;
         font-size: 26px;
@@ -190,7 +264,6 @@
         color:#111;
         opacity:.7;
       }
-
       .sub-popup__cap{
         padding: 10px 10px 12px;
         text-align:center;
@@ -198,20 +271,17 @@
         font-weight: 700;
         color:#111;
       }
-
       .sub-popup__hr{
         border:none;
         border-top: 1px solid rgba(0,0,0,.10);
         margin: 14px 0 12px;
       }
-
       .sub-popup__footer{
         display:flex;
         justify-content:space-between;
         align-items:center;
         gap: 10px;
       }
-
       .sub-popup__check{
         font-size: 14px;
         color:#111;
@@ -219,7 +289,6 @@
         align-items:center;
         gap:8px;
       }
-
       .sub-popup__btn{
         border:none;
         background:#0ea5e9;
@@ -230,7 +299,6 @@
         cursor:pointer;
       }
       .sub-popup__btn:hover{ opacity:.92; }
-
       @media (max-width: 560px){
         .sub-popup{ left: 12px; right: 12px; width: auto; top: 12px; }
         .sub-popup__title{ font-size: 34px; }
@@ -244,6 +312,7 @@
     <%@ include file="components/header.jsp" %>
     <div id="app">
       <div class="wrap" style="padding-bottom: 80px">
+        <h1 class="page-title2">예약하기</h1>
         <div class="grid two-col">
           <section class="panel">
             <h3>테마 선택 <span class="desc">복수 선택 가능</span></h3>
@@ -345,9 +414,6 @@
                 </div>
               </div>
             </div>
-            <div class="premium-msg">구독 전용 기능입니다</div>
-            <div class="premium-sub">예산 비중을 직접 상세하게 설정해보세요</div>
-          </div>
 
             <button class="btn-generate" @click="fnCreate">
               <i class="fa-solid fa-wand-magic-sparkles"></i> 추천 목록 생성
@@ -355,8 +421,17 @@
           </section>
         </div>
 
-        <section class="panel" style="margin-top: 10px">
+        <section class="panel premium-lock-wrapper" style="margin-top: 10px">
           <h3>예산 배분</h3>
+          
+          <div class="premium-overlay" v-if="!isPremium">
+            <div class="lock-icon-circle">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+            <div class="premium-msg">구독 전용 기능입니다</div>
+            <div class="premium-sub">예산 비중을 직접 상세하게 설정해보세요</div>
+          </div>
+
           <div class="desc">
             원형 차트의 분기점을 <b>드래그</b>하거나, 오른쪽 슬라이더로 가중치를 조정하세요. (총합 100%) 체크박스를 켜면 해당 항목이
             <b>잠금</b>됩니다.
@@ -376,11 +451,11 @@
                 @touchend.prevent="onPieUp"
               ></canvas>
               <div class="help">*도넛 두께 영역을 잡고 <strong>분기점</strong>을 회전시키세요. (잠금된 항목은 비율 고정)</div>
-              </div>
+            </div>
             <div class="legend">
               <div class="legend-row" v-for="(c,idx) in categories" :key="c.key">
                 <label style="display: flex; align-items: center; gap: 6px; min-width: 22px">
-                  <input type="checkbox" v-model="locks[idx]" @change="normalizeWeights(); drawPie()" />
+                  <input type="checkbox" v-model="locks[idx]" @change="normalizeWeights(); drawPie()" :disabled="!isPremium" />
                 </label>
                 <span class="swatch" :style="{ background:c.color }"></span>
                 <div style="flex: 1">
@@ -392,7 +467,7 @@
                     <span class="pct">{{ weights[idx] }}%</span>
                     <span class="amount">{{ amountFor(idx).toLocaleString() }}원</span>
                   </div>
-                  <input type="range" min="5" max="90" :value="weights[idx]" @input="onSlider(idx, $event.target.value)" :disabled="locks[idx]" />
+                  <input type="range" min="5" max="90" :value="weights[idx]" @input="onSlider(idx, $event.target.value)" :disabled="locks[idx] || !isPremium" />
                 </div>
               </div>
               <div class="inline" style="margin-top: 4px">
@@ -407,12 +482,12 @@
           <h3>추천 코스 (지도)</h3>
           <div class="desc">*연관도가 높을수록 마커가 <strong>크게</strong> 표시됩니다.</div>
 
-          <div class="tabs date-tabs" v-if="dateTabs.length > 0">
+          <div class="custom-tabs" v-if="dateTabs.length > 0">
             <button
               type="button"
               v-for="tab in dateTabs"
               :key="tab.date"
-              :class="['tab-btn', { active: activeDate === tab.date }]"
+              :class="['custom-tab-btn', { active: activeDate === tab.date }]"
               @click="setActiveDate(tab.date)"
             >
               {{ tab.label }}
@@ -430,14 +505,14 @@
             </select>
           </div>
 
-          <div class="tabs" v-if="activeDate">
-            <button type="button" :class="['tab-btn', { active: activeTab === 12 }]" @click="setActiveTab(12)">
+          <div class="custom-tabs" v-if="activeDate">
+            <button type="button" :class="['custom-tab-btn', { active: activeTab === 12 }]" @click="setActiveTab(12)">
               <i class="fa-solid fa-camera"></i> 관광지 ({{ countForTab(12) }})
             </button>
-            <button type="button" :class="['tab-btn', { active: activeTab === 32 }]" @click="setActiveTab(32)">
+            <button type="button" :class="['custom-tab-btn', { active: activeTab === 32 }]" @click="setActiveTab(32)">
               <i class="fa-solid fa-hotel"></i> 숙박 ({{ countForTab(32) }})
             </button>
-            <button type="button" :class="['tab-btn', { active: activeTab === 39 }]" @click="setActiveTab(39)">
+            <button type="button" :class="['custom-tab-btn', { active: activeTab === 39 }]" @click="setActiveTab(39)">
               <i class="fa-solid fa-utensils"></i> 식당 ({{ countForTab(39) }})
             </button>
           </div>
@@ -455,7 +530,7 @@
         <section class="panel" style="margin-top: 10px">
           <h3>나의 최종 일정 (순서 변경 가능)</h3>
 
-          <div class="budget-status-wrap" v-if="budget > 0">
+          <div class="budget-status-wrap" v-if="isPremium && budget > 0">
             <div class="budget-status-item">
               <span class="label">숙박 예산</span>
               <span :class="['amount', { over: spentAccom > accomBudgetLimit }]">
@@ -479,6 +554,14 @@
             </div>
           </div>
 
+          <div class="budget-status-wrap" v-else-if="!isPremium" style="justify-content: flex-end; background: #f8fafc;">
+             <div class="budget-status-item" style="font-size: 1.1rem;">
+                <span class="label">현재 담은 코스 총 비용:</span>
+                <span class="amount" style="color: #2c3e50; font-weight:bold; margin-left: 10px;">
+                    {{ (spentAccom + spentFood + spentActivity).toLocaleString() }}원
+                </span>
+             </div>
+          </div>
           <div class="desc" v-if="dateTabs.length > 0">일정 항목을 마우스로 잡고 위아래로 끌어서 순서를 변경할 수 있습니다.</div>
 
           <div v-if="dateTabs.length > 0">
@@ -525,15 +608,7 @@
         </div>
 
         <button class="fab" @click="openBoardModal" aria-label="커뮤니티 열기" title="커뮤니티">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
           </svg>
         </button>
@@ -559,22 +634,17 @@
     <div id="popup-overlay" class="popup-overlay" style="display:none;"></div>
     <div id="ad-popup" class="sub-popup" style="display:none;">
       <button class="sub-popup__x" type="button" onclick="closePopup()" aria-label="닫기">×</button>
-
       <h2 class="sub-popup__title">구독 혜택</h2>
-
       <div class="sub-popup__desc">
         <div>여행하기 예산배분 잠금 활성화</div>
         <div>일1회 경로 생성 → 무제한 이용 가능</div>
       </div>
-
       <div class="sub-popup__grid">
         <div class="sub-popup__row">
           <figure class="sub-popup__card">
             <img src="/img/ad/ad1.PNG" alt="예산배분 잠금 상태" />
           </figure>
-
           <div class="sub-popup__arrow">→</div>
-
           <figure class="sub-popup__card">
             <img src="/img/ad/ad2.PNG" alt="예산배분 무제한 상태" />
           </figure>
@@ -627,7 +697,7 @@
             currentSigungu: "",
             selectedRegions: [],
 
-            /* ✅ [수정] Controller에서 넘겨준 값으로 초기화 (isELIgnored="true"이므로 스크립틀릿 사용) */
+            /* ✅ Controller에서 넘겨준 값들 */
             budget: <%= request.getAttribute("budget") != null ? request.getAttribute("budget") : 0 %>,
             headCount: <%= request.getAttribute("headCount") != null ? request.getAttribute("headCount") : 0 %>,
             
@@ -666,7 +736,6 @@
             selectedDay: 1,
             themes: "",
             
-            /* ✅ 세션 ID 가져오기 */
             sessionId: "<%= session.getAttribute("sessionId") != null ? session.getAttribute("sessionId") : "" %>",
           };
         },
@@ -763,21 +832,20 @@
 
         methods: {
           async loadSido() {
-            const self = this; // Vue 인스턴스 바인딩
+            const self = this; 
             self.loadingSido = true;
             self.sidoList = [];
             try {
               const data = await $.get(ctx + "/api/areas/sido");
               self.sidoList = Array.isArray(data) ? data : [];
             } catch (e) {
-              //console.error("시/도 조회 실패", e);
             } finally {
               self.loadingSido = false;
             }
           },
 
           async loadSigungu() {
-            const self = this; // Vue 인스턴스 바인딩
+            const self = this; 
             self.loadingSigungu = true;
             self.sigunguList = [];
             try {
@@ -785,7 +853,6 @@
               const data = await $.get(ctx + "/api/areas/sigungu", { areaCode: self.currentSido });
               self.sigunguList = Array.isArray(data) ? data : [];
             } catch (e) {
-              //console.error("시/군/구 조회 실패", e);
             } finally {
               self.loadingSigungu = false;
             }
@@ -891,6 +958,27 @@
                 alert("방문할 지역을 1개 이상 선택해주세요.");
               }
               return;
+            }
+
+            try {
+                const limitCheck = await $.ajax({
+                    url: "/api/recommend/check-limit",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ userId: self.sessionId })
+                });
+
+                if (limitCheck.status === "limit_exceeded") {
+                    document.getElementById("ad-popup").style.display = "block";
+                    document.getElementById("popup-overlay").style.display = "block";
+                    return; 
+                }
+                
+                if (!limitCheck.isPremium && limitCheck.status === "success") {
+                    alert(`무료 횟수가 차감되었습니다. (남은 횟수: ${limitCheck.remain}회)`);
+                }
+            } catch (e) {
+                console.error("횟수 체크 실패", e);
             }
 
             const el = document.getElementById("debugOut");
@@ -1165,32 +1253,35 @@
                 return;
               }
               const poiPrice = this.selectedPoi.price || 0;
-              console.log(poiPrice);
-              
               const poiType = this.selectedPoi.typeId;
-              
-              let currentSpent = 0;
-              let categoryLimit = 0;
-              let categoryName = '';
 
-              if (poiType === 32) {             // 숙박
-                currentSpent = this.spentAccom;
-                categoryLimit = this.accomBudgetLimit;
-                categoryName = '숙박';
-              } else if (poiType === 39) {      // 식당
-                currentSpent = this.spentFood;
-                categoryLimit = this.foodBudgetLimit;
-                categoryName = '식당';
-              } else if (poiType === 12) {      // 체험/관광
-                currentSpent = this.spentActivity;
-                categoryLimit = this.activityBudgetLimit;
-                categoryName = '체험 및 관광';
+              // ✅ [요청 반영] 구독자(Premium)만 예산 초과 체크
+              // 무료 회원은 예산 초과 여부 상관없이 추가 가능
+              if (this.isPremium) {
+                  if (poiType === 32) { // 숙박
+                       if (this.spentAccom + poiPrice > this.accomBudgetLimit) {
+                           alert("숙박 예산을 초과했습니다.\n(설정된 예산 범위를 조절하거나 다른 장소를 선택하세요)");
+                           return; // 추가 차단
+                       }
+                  } else if (poiType === 39) { // 식당
+                       if (this.spentFood + poiPrice > this.foodBudgetLimit) {
+                           alert("식당 예산을 초과했습니다.\n(설정된 예산 범위를 조절하거나 다른 장소를 선택하세요)");
+                           return; // 추가 차단
+                       }
+                  } else if (poiType === 12) { // 체험/관광
+                       // 체험/관광은 가격이 있더라도 예산 체크를 느슨하게 하거나 제외할 수 있습니다.
+                       if (this.spentActivity + poiPrice > this.activityBudgetLimit) {
+                            alert("체험/관광 예산을 초과했습니다.");
+                            return; 
+                       }
+                  }
               }
               
               if (poiType === 32) this.spentAccom += poiPrice;
               else if (poiType === 39) this.spentFood += poiPrice;
               else if (poiType === 12) this.spentActivity += poiPrice;
-               if (!this.itinerary[this.activeDate]) {
+              
+              if (!this.itinerary[this.activeDate]) {
                 this.itinerary[this.activeDate] = [];
               }
               this.itinerary[this.activeDate].push({ ...this.selectedPoi, price: poiPrice });
@@ -1202,7 +1293,6 @@
             if (this.itinerary[date] && this.itinerary[date].length > index) {
               const removedPoi = this.itinerary[date].splice(index, 1)[0];
               const poiPrice = removedPoi.price || 0;
-              console.log(removedPoi.typeId);
               
               if (poiPrice > 0) {
                 if (removedPoi.typeId === 32) this.spentAccom -= poiPrice;
@@ -1258,7 +1348,7 @@
           isDragOver(date, index) {
             return this.dragOverDate === date && this.dragOverIndex === index;
           },
-          //활용하기
+          
           fninfo() {
             let self = this;
             $.ajax({
@@ -1266,12 +1356,8 @@
               type: "GET",
               data: { resNum: self.resNum },
               success(data) {
-                //console.log("서버 데이터:", data);
-
-                // 기본 정보 세팅
                 self.list = data.list[0];
                 self.detail = data.detail;
-
                 self.themes = data.list[0].themnum || "";
                 self.selectedThemes = self.themes.split(/[,/]/);
                 self.currentSido = data.list[0].areaNum;
@@ -1279,16 +1365,11 @@
                 self.startDate = data.list[0].sdate;
                 self.endDate = data.list[0].edate;
                 self.budget = data.list[0].price;
-
-                // itinerary 초기화
                 self.itinerary = {};
                 
-
-                // 서버에서 불러온 POI를 일정에 추가
                 self.$nextTick(() => {
                   for (let dayKey in self.detail) {
                     self.detail[dayKey].forEach((item) => {
-                      // selectedPoi 세팅
                       self.selectedPoi = {
                         title: item.title,
                         mapy: parseFloat(item.mapy),
@@ -1297,36 +1378,25 @@
                         reserv_date: item.reserv_date,
                         addr1: item.addr1,
                         contentId: item.contentid,
-                        day: item.day, // 여기 중요!
+                        day: item.day,
                         overview: item.overview,
                         firstimage: item.firstimage || null,
                         price: item.price || 0,
                         typeId: parseInt( item.typeId),
                       };
-                      console.log(self.selectedPoi);
                       
-                      // activeDate를 POI의 day로 세팅
                       self.activeDate = item.day;
-
-                      // 일정에 추가
                       self.addPoiToItinerary();
                     });
                   }
-
-                  // fullPoiList를 itinerary 전체로 설정 (모든 날 POI 포함)
                   self.fullPoiList = Object.values(self.itinerary).flat();
-
-                  // 첫날 선택
                   if (self.dateTabs && self.dateTabs.length > 0) {
                     self.selectedDay = self.dateTabs[0].date;
                   }
-
-                  // 지도에 모든 날 POI 표시
                   self.drawMarkers();
                 });
               },
               error(err) {
-                // console.error("데이터 로드 실패:", err);
               },
             });
           },
@@ -1339,26 +1409,26 @@
             location.href = "/member/login.do";
             return;
           }
-
-          // alert(window.sessionData.id);
           await this.loadSido();
           this.initMap();
           if (self.resNum && self.resNum !== "null" && self.resNum !== "") {
             self.fninfo();
           }
+
+          if (!this.isPremium) {
+              this.locks = [true, true, true, true]; 
+              this.$nextTick(() => {
+                  if(typeof this.drawPie === 'function') this.drawPie();
+              });
+          }
         },
       });
 
-      // 믹스인 주입
       app.mixin(window.ReservationPieMixin);
       app.mixin(window.ReservationCalendarMixin);
 
-      app.mount("#app"); // Vue 앱 시작
+      app.mount("#app");
 
-
-     // ================================
-  // ✅ 광고 팝업 제어 (7일)
-  // ================================
   document.addEventListener("DOMContentLoaded", function () {
   const popup = document.getElementById("ad-popup");
   const overlay = document.getElementById("popup-overlay");
