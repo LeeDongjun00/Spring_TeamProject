@@ -1,8 +1,8 @@
 package com.example.test1.dao;
 
 import com.example.test1.mapper.ResMapper;
-import com.example.test1.model.reservation.Poi;
 import com.example.test1.model.Reservation;
+import com.example.test1.model.reservation.Poi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -35,12 +35,33 @@ public class ResService {
     // -------- 예약 저장/조회 --------
     @Transactional
     public Long saveNewReservation(Reservation reservation, List<Poi> pois) {
+
+        // 1) 예약 저장
         resMapper.insertReservation(reservation);
         Long resNum = Long.parseLong(reservation.getResNum());
+
+        // 2) POI 저장
         for (Poi poi : pois) {
             poi.setResNum(resNum);
             resMapper.insertPoi(poi);
         }
+
+        // 3) 숙소(typeId=32) "1개만" RESERVATION_ACC 저장 (RESNUM이 PK라 1건만 가능)
+        String reserver = reservation.getUserId(); // 닉네임이면 닉네임 값으로 교체
+
+        for (Poi poi : pois) {
+            Integer typeId = poi.getTypeId();
+            if (typeId != null && typeId == 32) {
+                resMapper.insertReservationAcc(
+                        resNum,
+                        poi.getPlaceName(),  // ACCOM_NAME
+                        reserver,            // RESERVER
+                        poi.getContentId()   // CONTENTID
+                );
+                break; // ✅ 중복키(ORA-00001) 방지: 일정당 숙소 1개만
+            }
+        }
+
         return resNum;
     }
 
