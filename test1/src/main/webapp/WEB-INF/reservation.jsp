@@ -360,7 +360,7 @@ String.valueOf(request.getAttribute("resNum")); %>
                   <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 4px">
                     <strong>
                       {{ c.label }}
-                      <span v-if="locks[idx]" style="font-weight: 600; color: #2563eb; margin-left: 6px">🔒</span>
+                      <span v-if="locks[idx]" style="font-weight: 600; color: #2563eb; margin-left: 6px"></span>
                     </strong>
                     <span class="pct">{{ weights[idx] }}%</span>
                     <span class="amount">{{ amountFor(idx).toLocaleString() }}원</span>
@@ -537,30 +537,6 @@ String.valueOf(request.getAttribute("resNum")); %>
 
 <!-- ================================
      ✅ 구독 혜택 팝업 (7일간 숨김)
-================================ -->
-<div id="popup-overlay" class="popup-overlay" style="display:none;"></div>
-<div id="ad-popup" class="sub-popup" style="display:none;">
-  <button class="sub-popup__x" type="button" onclick="closePopup()" aria-label="닫기">×</button>
-
-  <h2 class="sub-popup__title">구독 혜택</h2>
-
-  <div class="sub-popup__desc">
-    <div>여행하기 예산배분 잠금 활성화</div>
-    <div>일1회 경로 생성 → 무제한 이용 가능</div>
-  </div>
-
-  <div class="sub-popup__grid">
-    <!-- ✅ Row 1: 예산 배분 잠금 → 해제 -->
-    <div class="sub-popup__row">
-      <figure class="sub-popup__card">
-        <img src="/img/ad/ad1.PNG" alt="예산배분 잠금 상태" />
-      </figure>
-
-      <div class="sub-popup__arrow">→</div>
-
-      <figure class="sub-popup__card">
-        <img src="/img/ad/ad2.PNG" alt="예산배분 무제한 상태" />
-      </figure>
     </div>
 
     <!-- ✅ Row 2: 경로 보기 1회 → 무제한 -->

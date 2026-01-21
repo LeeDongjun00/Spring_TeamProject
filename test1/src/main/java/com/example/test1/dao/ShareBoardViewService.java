@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -53,7 +55,7 @@ public class ShareBoardViewService {
 		
 			String url = "https://apis.data.go.kr/B551011/KorService2/detailCommon2"
                     + "?MobileOS=ETC&MobileApp=AppTest"
-                    + "&ServiceKey=" + encodedKey
+                    + "&ServiceKey=" + apiKey
                     + "&contentId=" + contentId;
 
             RestTemplate restTemplate = new RestTemplate();
@@ -98,100 +100,81 @@ public class ShareBoardViewService {
     }
   //contentId 리스트
     public Map<Integer, List<HashMap<String, Object>>> fetchAllInfo(HashMap<String, Object> map) {
-
         Map<Integer, List<HashMap<String, Object>>> dayMap = new HashMap<>();
-
-        // ✅ contentId 기준 캐시 (API 중복 호출 방지)
         Map<String, List<HashMap<String, Object>>> infoCache = new HashMap<>();
-
-        // DB에서 contentId 리스트 가져오기
         List<Share> shares = ShareBoardMapper.sharInfo(map);
 
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
         for (Share share : shares) {
+            futures.add(CompletableFuture.runAsync(() -> {
+                String contentId = String.valueOf(share.getContentId());
+                if (contentId == null || contentId.isEmpty()) return;
 
-            String contentId = String.valueOf(share.getContentId())  != null
-                    ? String.valueOf(share.getContentId())
-                    : null;
-            if (contentId == null || contentId.isEmpty()) continue;
+                int dayNum = share.getDayNum();
+                String reserveDate = share.getDay();
+                List<HashMap<String, Object>> infoList;
 
-            int dayNum = share.getDayNum();
-            String reserveDate = share.getDay();
-
-            List<HashMap<String, Object>> infoList;
-
-            // ===============================
-            // ✅ 캐시 확인
-            // ===============================
-            if (infoCache.containsKey(contentId)) {
-
-                // 🔹 캐시된 데이터 복사 (day, dayNum 꼬임 방지)
-                infoList = new ArrayList<>();
-                for (HashMap<String, Object> cached : infoCache.get(contentId)) {
-                    HashMap<String, Object> copy = new HashMap<>(cached);
-                    copy.put("day", reserveDate);
-                    copy.put("dayNum", dayNum);
-                    infoList.add(copy);
-                }
-
-            } else {
-
-                boolean success = false;
-                int attempts = 0;
-                int maxRetries = 2; // ✅ 5 → 2로 줄임
-
-                infoList = new ArrayList<>();
-
-                while (!success && attempts < maxRetries) {
-                    try {
-                        infoList = getInfo(contentId, reserveDate, dayNum);
-
-                        // 🔹 캐시에 "원본" 저장
-                        List<HashMap<String, Object>> cacheCopy = new ArrayList<>();
-                        for (HashMap<String, Object> info : infoList) {
-                            cacheCopy.add(new HashMap<>(info));
+                synchronized (infoCache) { // 캐시 동시 접근 방지
+                    if (infoCache.containsKey(contentId)) {
+                        infoList = new ArrayList<>();
+                        for (HashMap<String, Object> cached : infoCache.get(contentId)) {
+                            HashMap<String, Object> copy = new HashMap<>(cached);
+                            copy.put("day", reserveDate);
+                            copy.put("dayNum", dayNum);
+                            infoList.add(copy);
                         }
-                        infoCache.put(contentId, cacheCopy);
+                    } else {
+                        boolean success = false;
+                        int attempts = 0;
+                        int maxRetries = 2;
+                        infoList = new ArrayList<>();
 
-                        success = true;
-                    } catch (Exception e) {
-                        attempts++;
-                        try {
-                            Thread.sleep(500); // 1초 → 0.5초
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
+                        while (!success && attempts < maxRetries) {
+                            try {
+                                infoList = getInfo(contentId, reserveDate, dayNum);
+
+                                // 캐시에 저장
+                                List<HashMap<String, Object>> cacheCopy = new ArrayList<>();
+                                for (HashMap<String, Object> info : infoList) {
+                                    cacheCopy.add(new HashMap<>(info));
+                                }
+                                infoCache.put(contentId, cacheCopy);
+
+                                success = true;
+                            } catch (Exception e) {
+                                attempts++;
+                                try { Thread.sleep(500); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                            }
                         }
                     }
                 }
 
-                if (!success) {
-                    infoList = new ArrayList<>();
+                Double rating = share.getRating();
+                String content = share.getContent();
+
+                synchronized (dayMap) { // dayMap 동시 접근 방지
+                    for (HashMap<String, Object> infoMap : infoList) {
+                        infoMap.put("dayNum", dayNum);
+                        if (rating != null) {
+                            infoMap.put("rating", rating);
+                            infoMap.put("content", content);
+                        } else {
+                            infoMap.put("rating", 0);
+                        }
+                        dayMap.computeIfAbsent(dayNum, k -> new ArrayList<>()).add(infoMap);
+                    }
                 }
-            }
-
-            Double rating = share.getRating();
-            String content = share.getContent();
-
-            // ===============================
-            // dayNum 기준으로 결과 저장
-            // ===============================
-            for (HashMap<String, Object> infoMap : infoList) {
-
-                infoMap.put("dayNum", dayNum);
-
-                if (rating != null) {
-                    infoMap.put("rating", rating);
-                    infoMap.put("content", content);
-                } else {
-                    infoMap.put("rating", 0);
-                }
-
-                dayMap.computeIfAbsent(dayNum, k -> new ArrayList<>()).add(infoMap);
-            }
+            }));
         }
+
+        // 모든 CompletableFuture가 끝날 때까지 기다리기
+        futures.forEach(f -> {
+            try { f.get(); } catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
+        });
 
         return dayMap;
     }
-
 
   //디테일 정보
     public List<HashMap<String, Object>> DetailInfo(String contentId)throws Exception {
@@ -201,7 +184,7 @@ public class ShareBoardViewService {
 		String encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
 		
 			String url = "https://apis.data.go.kr/B551011/KorService2/detailCommon2"
-                    + "?ServiceKey=" + encodedKey
+                    + "?ServiceKey=" + apiKey
                     + "&MobileOS=ETC&MobileApp=AppTest"
                     + "&contentId=" + contentId;
 
@@ -246,69 +229,55 @@ public class ShareBoardViewService {
     
     public Map<Integer, HashMap<String, Object>> thumbnailMap(HashMap<String, Object> paramMap) {
         Map<Integer, HashMap<String, Object>> resultMap = new HashMap<>();
-
         List<Review> resList = reviewMapper.thumbnailWithResNum(paramMap);
-        String[] randomImages = {
-                "/img/defaultImg01.jpg", "/img/defaultImg02.jpg", "/img/defaultImg03.jpg",
-                "/img/defaultImg04.jpg", "/img/defaultImg05.jpg", "/img/defaultImg06.jpg"
-        };
-        Random random = new Random();
-
-        // ✅ 중복 contentId의 이미지를 저장할 로컬 캐시 선언
+       
         Map<String, String> imageCache = new HashMap<>();
 
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
         for (Review r : resList) {
-            Integer resNum = r.getResNum();
-            String contentId = (r.getContentId() != null) ? String.valueOf(r.getContentId()) : null;
+            futures.add(CompletableFuture.runAsync(() -> {
+                Integer resNum = r.getResNum();
+                String contentId = (r.getContentId() != null) ? String.valueOf(r.getContentId()) : null;
+                String firstImage = null;
 
-            // 1. contentId가 없는 경우 처리
-            if (contentId == null || contentId.isEmpty()) {
+                if (contentId != null && !contentId.isEmpty()) {
+                    if (imageCache.containsKey(contentId)) {
+                        firstImage = imageCache.get(contentId);
+                    } else {
+                        try {
+                            firstImage = getFirstImage(contentId);
+                            imageCache.put(contentId, firstImage);
+                        } catch (Exception e) {
+                            firstImage = null;  // 예외 발생 시에도 null
+                        }
+                    }
+                }
+
                 HashMap<String, Object> map = new HashMap<>();
-                map.put("contentId", "");
-                map.put("firstimage", randomImages[random.nextInt(randomImages.length)]);
-                resultMap.put(resNum, map);
-                continue;
-            }
+                map.put("contentId", contentId);
+                map.put("firstimage", firstImage);
 
-            String firstImage;
-
-            // 2. ✅ 캐시에 이미 존재하는 contentId인지 확인
-            if (imageCache.containsKey(contentId)) {
-                firstImage = imageCache.get(contentId);
-            } else {
-                // 캐시에 없으면 API 호출
-                try {
-                    firstImage = getFirstImage(contentId);
-                } catch (Exception e) {
-                    System.err.println("[WARN] 이미지 조회 실패: contentId=" + contentId);
-                    firstImage = null;
+                synchronized(resultMap) {
+                    resultMap.put(resNum, map);
                 }
-
-                // API 결과가 없으면 랜덤 이미지 선택
-                if (firstImage == null || firstImage.trim().isEmpty()) {
-                    firstImage = randomImages[random.nextInt(randomImages.length)];
-                }
-
-                // ✅ 결과를 캐시에 저장 (다음 중복 시 API 호출 방지)
-                imageCache.put(contentId, firstImage);
-            }
-
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("contentId", contentId);
-            map.put("firstimage", firstImage);
-            resultMap.put(resNum, map);
+            }));
         }
+
+        futures.forEach(f -> {
+            try { f.get(); } catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
+        });
 
         return resultMap;
     }
-
     // API로 이미지 가져오기
     public String getFirstImage(String contentId) throws Exception {
     	String encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
         String url = "https://apis.data.go.kr/B551011/KorService2/detailCommon2"
-                + "?ServiceKey=" + encodedKey
+                + "?ServiceKey=" + apiKey
                 + "&MobileOS=ETC&MobileApp=AppTest"
-                + "&contentId=" + contentId;
+                + "&contentId=" + contentId
+                ;
         System.out.println(url);
         RestTemplate restTemplate = new RestTemplate();
         byte[] bytes = restTemplate.getForObject(url, byte[].class);

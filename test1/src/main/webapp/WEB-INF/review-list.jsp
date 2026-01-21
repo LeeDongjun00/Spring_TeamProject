@@ -18,11 +18,11 @@
     <link rel="stylesheet" href="/css/main-images.css" />
 
     <style>
-      body {
-        font-family: "Noto Sans KR", sans-serif;
-        background-color: #f6f7fb;
-        margin: 0;
-      }
+		body {
+		        font-family: "Noto Sans KR", sans-serif;
+		        background-color: #ffffff; /* 흰색으로 변경 */
+		        margin: 0;
+		      }
 
       h2 {
         text-align: center;
@@ -349,7 +349,7 @@
           </button>
         </div>
 
-        <h2>📋 게시글 목록</h2>
+        <h2>Review</h2>
       </div>
 
       <div class="middle">
@@ -511,6 +511,49 @@
             "/img/defaultImg73.PNG",
             "/img/defaultImg74.PNG",
             "/img/defaultImg75.PNG",
+			"/img/defaultmg07.jpg",
+			"/img/defaultmg08.jpg",
+			"/img/defaultmg09.jpg",
+			"/img/defaultmg10.jpg",
+			"/img/defaultmg11.jpg",
+			"/img/defaultmg12.jpg",
+			"/img/defaultmg13.jpg",
+			"/img/defaultmg14.jpg",
+			"/img/defaultmg15.jpg",
+			"/img/defaultmg16.jpg",
+			"/img/defaultimg17.jpg",
+			"/img/defaultimg18.jpg",
+			"/img/defaultimg19.jpg",
+			"/img/defaultimg20.jpg",
+			"/img/defaultimg21.jpg",
+			"/img/defaultimg22.jpg",
+			"/img/defaultimg23.jpg",
+			"/img/defaultimg24.jpg",
+			"/img/defaultimg25.jpg",
+			"/img/defaultimg26.jpg",
+			"/img/defaultimg27.jpg",
+			"/img/defaultimg28.jpg",
+			"/img/defaultimg29.jpg",
+			"/img/defaultimg30.jpg",
+			"/img/defaultimg31.jpg",
+			"/img/defaultimg32.jpg",
+			"/img/defaultimg33.jpg",
+			"/img/defaultimg34.jpg",
+			"/img/defaultimg35.jpg",
+			"/img/defaultimg36.jpg",
+			"/img/defaultimg37.jpg",
+			"/img/defaultimg38.jpg",
+			"/img/defaultimg39.jpg",
+			"/img/defaultimg40.jpg",
+			"/img/defaultimg41.jpg",
+			"/img/defaultimg42.jpg",
+			"/img/defaultimg43.jpg",
+			"/img/defaultimg44.jpg",
+			"/img/defaultimg45.jpg",
+			"/img/defaultimg46.jpg",
+			"/img/defaultimg47.jpg",
+			"/img/defaultimg48.jpg",
+			"/img/defaultimg49.jpg"
           ],
           status: window.sessionData.status,
         };
