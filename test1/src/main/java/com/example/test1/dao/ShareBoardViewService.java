@@ -230,9 +230,7 @@ public class ShareBoardViewService {
     public Map<Integer, HashMap<String, Object>> thumbnailMap(HashMap<String, Object> paramMap) {
         Map<Integer, HashMap<String, Object>> resultMap = new HashMap<>();
         List<Review> resList = reviewMapper.thumbnailWithResNum(paramMap);
-        String[] randomImages = {"/img/defaultImg01.jpg", "/img/defaultImg02.jpg", "/img/defaultImg03.jpg",
-                                 "/img/defaultImg04.jpg", "/img/defaultImg05.jpg", "/img/defaultImg06.jpg"};
-        Random random = new Random();
+       
         Map<String, String> imageCache = new HashMap<>();
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -241,21 +239,18 @@ public class ShareBoardViewService {
             futures.add(CompletableFuture.runAsync(() -> {
                 Integer resNum = r.getResNum();
                 String contentId = (r.getContentId() != null) ? String.valueOf(r.getContentId()) : null;
-                String firstImage;
+                String firstImage = null;
 
-                if (contentId == null || contentId.isEmpty()) {
-                    firstImage = randomImages[random.nextInt(randomImages.length)];
-                } else if (imageCache.containsKey(contentId)) {
-                    firstImage = imageCache.get(contentId);
-                } else {
-                    try {
-                        firstImage = getFirstImage(contentId);
-                        if (firstImage == null || firstImage.isEmpty()) {
-                            firstImage = randomImages[random.nextInt(randomImages.length)];
+                if (contentId != null && !contentId.isEmpty()) {
+                    if (imageCache.containsKey(contentId)) {
+                        firstImage = imageCache.get(contentId);
+                    } else {
+                        try {
+                            firstImage = getFirstImage(contentId);
+                            imageCache.put(contentId, firstImage);
+                        } catch (Exception e) {
+                            firstImage = null;  // 예외 발생 시에도 null
                         }
-                        imageCache.put(contentId, firstImage);
-                    } catch (Exception e) {
-                        firstImage = randomImages[random.nextInt(randomImages.length)];
                     }
                 }
 
