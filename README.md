@@ -131,4 +131,4 @@
 ---
 
 ## 📕 발표 PPT
-▶ [IMREADY 발표 자료 보기]()
+▶ [IMREADY 발표 자료 보기](https://www.miricanvas.com/login?redirect=%2Fv2%2Fdesign2%2F92714b9b-412e-40ab-baec-380e26b73b8e%3Flocation%3Ddesign%26type%3Dcopy_link%26access%3Ddirect)
